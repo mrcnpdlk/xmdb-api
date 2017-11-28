@@ -1,0 +1,36 @@
+{
+  "name": "mrcnpdlk/xmdb-api",
+  "description": "xMDB parser",
+  "authors": [
+    {
+      "name": "Marcin Pudełek",
+      "email": "marcin@pudelek.org.pl"
+    }
+  ],
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=7.0",
+    "ext-curl": "*",
+    "mrcnpdlk/psr16cache-adapter": "~0",
+    "php-curl-class/php-curl-class": "~8 || ~7",
+    "php-tmdb/api": "~2",
+    "sunra/php-simple-html-dom-parser": "~1",
+    "kherge/json": "~2",
+    "httplib/http": "~1",
+    "campo/random-user-agent": "~1",
+    "imdbphp/imdbphp": "~5",
+    "fabianbeiner/php-imdb-grabber": "~6",
+    "nesbot/carbon": "~1"
+  },
+  "require-dev": {
+    "mrcnpdlk/monolog": "~0",
+    "phpfastcache/phpfastcache": "~6",
+    "phpunit/phpunit": "~6"
+  },
+  "autoload": {
+    "psr-4": {
+      "mrcnpdlk\\Xmdb\\": "src/"
+    }
+  }
+}
