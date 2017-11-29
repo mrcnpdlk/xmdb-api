@@ -21,7 +21,8 @@
     "campo/random-user-agent": "~1",
     "imdbphp/imdbphp": "~5",
     "fabianbeiner/php-imdb-grabber": "~6",
-    "nesbot/carbon": "~1"
+    "nesbot/carbon": "~1",
+    "roave/doctrine-simplecache":"~2"
   },
   "require-dev": {
     "mrcnpdlk/monolog": "~0",

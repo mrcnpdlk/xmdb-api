@@ -31,6 +31,14 @@ class Client
      * @var \Psr\Log\LoggerInterface
      */
     private $oLogger;
+    /**
+     * @var string
+     */
+    private $sTmdbToken;
+    /**
+     * @var string
+     */
+    private $sImdbUser;
 
     /**
      * Client constructor.
@@ -43,13 +51,18 @@ class Client
     }
 
     /**
-     * Get logger instance
+     * Set Logger handler (PSR-3)
      *
-     * @return \Psr\Log\LoggerInterface
+     * @param \Psr\Log\LoggerInterface|null $oLogger
+     *
+     * @return $this
      */
-    public function getLogger(): LoggerInterface
+    public function setLoggerInstance(LoggerInterface $oLogger = null)
     {
-        return $this->oLogger;
+        $this->oLogger = $oLogger ?: new NullLogger();
+        $this->setCacheAdapter();
+
+        return $this;
     }
 
     /**
@@ -81,17 +94,70 @@ class Client
     }
 
     /**
-     * Set Logger handler (PSR-3)
+     * Get logger instance
      *
-     * @param \Psr\Log\LoggerInterface|null $oLogger
-     *
-     * @return $this
+     * @return \Psr\Log\LoggerInterface
      */
-    public function setLoggerInstance(LoggerInterface $oLogger = null)
+    public function getLogger(): LoggerInterface
     {
-        $this->oLogger = $oLogger ?: new NullLogger();
-        $this->setCacheAdapter();
+        return $this->oLogger;
+    }
+
+    /**
+     * @param string $token
+     *
+     * @return \mrcnpdlk\Xmdb\Client
+     */
+    public function setTmdbToken(string $token): Client
+    {
+        $this->sTmdbToken = $token;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
+    public function getTmdbToken(): string
+    {
+        if (empty($this->sTmdbToken)) {
+            throw new Exception('Tmdb Token not set');
+        }
+
+        return $this->sTmdbToken;
+    }
+
+    /**
+     * @param string $user
+     *
+     * @return \mrcnpdlk\Xmdb\Client
+     */
+    public function setImdbUser(string $user): Client
+    {
+        $this->sImdbUser = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
+    public function getImdbUser(): string
+    {
+        if (empty($this->sImdbUser)) {
+            throw new Exception('Imdb User not set');
+        }
+
+        return $this->sImdbUser;
+    }
+
+    /**
+     * @return \mrcnpdlk\Psr16Cache\Adapter
+     */
+    public function getAdapter()
+    {
+        return $this->oCacheAdapter;
     }
 }
