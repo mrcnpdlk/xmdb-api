@@ -8,26 +8,17 @@
 namespace mrcnpdlk\Xmdb;
 
 
-use Tmdb\ApiToken;
-
 class Api
 {
     /**
      * @var \mrcnpdlk\Xmdb\Api
      */
-    protected static $instance = null;
+    protected static $instance;
     /**
      * @var \mrcnpdlk\Xmdb\Client
      */
     private $oClient;
-    /**
-     * @var \Tmdb\Client
-     */
-    private $oTmdbClient;
-    /**
-     * @var mixed
-     */
-    private $oImdbClient;
+
 
     /**
      * Api constructor.
@@ -46,7 +37,7 @@ class Api
      */
     public static function create(Client $oClient): Api
     {
-        if (!isset(static::$instance)) {
+        if (null === static::$instance) {
             static::$instance = new static($oClient);
         }
 
@@ -59,7 +50,7 @@ class Api
      */
     public static function getInstance(): Api
     {
-        if (!isset(static::$instance)) {
+        if (null === static::$instance) {
             throw new Exception(sprintf('First call CREATE method!'));
         }
 
@@ -67,42 +58,11 @@ class Api
     }
 
     /**
-     * @return \Tmdb\Client
-     * @throws \mrcnpdlk\Xmdb\Exception
-     */
-    public function getTmdbClient()
-    {
-        try {
-            if (null === $this->oTmdbClient) {
-                $oCache  = $this->getClient()->getAdapter()->getCache();
-                $options = [
-                    'cache' => [
-                        'enabled' => null !== $oCache,
-                        'handler' => $oCache ?: null,
-                    ],
-                    'log'   => [
-                        'enabled' => true,
-                        'handler' => $this->getClient()->getLogger(),
-                        'level'   => 'debug',
-                    ],
-                ];
-
-                $oToken            = new ApiToken($this->getClient()->getTmdbToken());
-                $this->oTmdbClient = new \Tmdb\Client($oToken, $options);
-            }
-
-            return $this->oTmdbClient;
-        } catch (\Exception $e) {
-            throw new Exception(sprintf('Cannot create Tmdb Client'), 1, $e);
-        }
-
-    }
-
-    /**
      * @return \mrcnpdlk\Xmdb\Client
      */
-    public function getClient()
+    public function getClient(): Client
     {
         return $this->oClient;
     }
+
 }

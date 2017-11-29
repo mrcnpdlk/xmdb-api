@@ -10,6 +10,7 @@
   "minimum-stability": "stable",
   "prefer-stable": true,
   "require": {
+    "roave/security-advisories": "dev-master",
     "php": ">=7.0",
     "ext-curl": "*",
     "mrcnpdlk/psr16cache-adapter": "~0",
@@ -21,8 +22,7 @@
     "campo/random-user-agent": "~1",
     "imdbphp/imdbphp": "~5",
     "fabianbeiner/php-imdb-grabber": "~6",
-    "nesbot/carbon": "~1",
-    "roave/doctrine-simplecache":"~2"
+    "nesbot/carbon": "~1"
   },
   "require-dev": {
     "mrcnpdlk/monolog": "~0",

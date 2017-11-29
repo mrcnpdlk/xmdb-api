@@ -12,6 +12,11 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\SimpleCache\CacheInterface;
 
+/**
+ * Class Client
+ *
+ * @package mrcnpdlk\Xmdb
+ */
 class Client
 {
 
@@ -156,7 +161,7 @@ class Client
     /**
      * @return \mrcnpdlk\Psr16Cache\Adapter
      */
-    public function getAdapter()
+    public function getAdapter(): Adapter
     {
         return $this->oCacheAdapter;
     }
