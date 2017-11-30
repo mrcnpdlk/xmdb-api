@@ -173,13 +173,13 @@ class Client
     }
 
     /**
-     * @param string $lang
+     * @param string $lang ISO 639-1 language code
      *
      * @return $this
      */
     public function setLang(string $lang = 'en')
     {
-        $this->sLangCode = $lang;
+        $this->sLangCode = strtolower($lang);
 
         return $this;
     }

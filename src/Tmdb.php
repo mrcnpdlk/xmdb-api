@@ -241,7 +241,7 @@ class Tmdb
             $oTitle->titleOrg        = $tData['original_name'];
             $oTitle->titleOrgLang    = $tData['original_language'];
             $oTitle->inProduction    = $tData['in_production'];
-            $oTitle->imdbId          = $tData['external_ids']['imdb_id'] ?: null;
+            $oTitle->imdbId          = $tData['external_ids']['imdb_id'] ?? null;
             $oTitle->backdrop        = $tData['backdrop_path'];
             $oTitle->poster          = $tData['poster_path'];
             $oTitle->firstAirDate    = $tData['first_air_date'];
@@ -295,6 +295,58 @@ class Tmdb
                 throw new Exception(sprintf('TMDB Response Error: %s', $e->getMessage()));
             }
 
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * @param string $title
+     *
+     * @return array|\mrcnpdlk\Xmdb\Model\Tmdb\Title[]
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
+    public function searchByTitle(string $title)
+    {
+        try {
+            /**
+             * @var Title[] $answer
+             */
+            $answer = [];
+            $tList  = $this->oTmdbClient
+                ->getSearchApi()
+                ->searchMulti($title, [
+                    'page'          => 1,
+                    'language'      => $this->oClient->getLang(),
+                    'include_adult' => true,
+                ])
+            ;
+            foreach ($tList['results'] ?? [] as $item) {
+                if (in_array($item['media_type'], ['tv', 'movie'], true)) {
+                    $oTitle               = new Title();
+                    $oTitle->id           = $item['id'];
+                    $oTitle->isMovie      = $item['media_type'] === 'movie';
+                    $oTitle->isAdult      = $item['adult'] ?? null;
+                    $oTitle->title        = $oTitle->isMovie ? $item['title'] : $item['name'];
+                    $oTitle->titleOrg     = $oTitle->isMovie ? $item['original_title'] : $item['original_name'];
+                    $oTitle->titleOrgLang = $item['original_language'];
+                    $oTitle->backdrop     = $item['backdrop_path'];
+                    $oTitle->poster       = $item['poster_path'];
+                    $oTitle->releaseDate  = $oTitle->isMovie ? $item['release_date'] : $item['first_air_date'];
+                    $oTitle->rating       = $item['vote_average'];
+                    $oTitle->voteCount    = $item['vote_count'];
+                    $oTitle->popularity   = $item['popularity'];
+                    $oTitle->overview     = $item['overview'];
+                    $oTitle->releaseYear  = $oTitle->releaseDate ? Carbon::parse($oTitle->releaseDate)->format('Y') : null;
+
+                    $answer[] = $oTitle;
+                }
+            }
+
+            return $answer;
+        } catch (\Exception $e) {
+            if ($e instanceof TmdbApiException) {
+                throw new Exception(sprintf('TMDB Response Error: %s', $e->getMessage()));
+            }
             throw new Exception($e->getMessage());
         }
     }
