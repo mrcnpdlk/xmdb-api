@@ -44,6 +44,12 @@ class Client
      * @var string
      */
     private $sImdbUser;
+    /**
+     * Language code
+     *
+     * @var string
+     */
+    private $sLangCode;
 
     /**
      * Client constructor.
@@ -164,5 +170,25 @@ class Client
     public function getAdapter(): Adapter
     {
         return $this->oCacheAdapter;
+    }
+
+    /**
+     * @param string $lang
+     *
+     * @return $this
+     */
+    public function setLang(string $lang = 'en')
+    {
+        $this->sLangCode = $lang;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLang()
+    {
+        return $this->sLangCode;
     }
 }
