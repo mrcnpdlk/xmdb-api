@@ -159,9 +159,9 @@ class Imdb
     public function getRating(string $imdbId): Rating
     {
         try {
-            $searchUrl = "http://p.media-imdb.com/static-content/documents/v1/title/"
+            $searchUrl = 'http://p.media-imdb.com/static-content/documents/v1/title/'
                 . $imdbId
-                . "/ratings%3Fjsonp=imdb.rating.run:imdb.api.title.ratings/data.json?u="
+                . '/ratings%3Fjsonp=imdb.rating.run:imdb.api.title.ratings/data.json?u='
                 . $this->oClient->getImdbUser();
 
             $oResp = $this->oClient->getAdapter()->useCache(
@@ -244,8 +244,6 @@ class Imdb
 
     /**
      * @param string $title
-     *
-     * @param bool   $extendedSearch
      *
      * @return Title[]
      */

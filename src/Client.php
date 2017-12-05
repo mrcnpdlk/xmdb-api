@@ -9,7 +9,7 @@
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
  *
- * @author Marcin Pudełek <marcin@pudelek.org.pl>
+ * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
 /**
@@ -79,18 +79,68 @@ class Client
     }
 
     /**
-     * Set Logger handler (PSR-3)
-     *
-     * @param \Psr\Log\LoggerInterface|null $oLogger
-     *
-     * @return $this
+     * @return \mrcnpdlk\Psr16Cache\Adapter
      */
-    public function setLoggerInstance(LoggerInterface $oLogger = null)
+    public function getAdapter(): Adapter
     {
-        $this->oLogger = $oLogger ?: new NullLogger();
-        $this->setCacheAdapter();
+        return $this->oCacheAdapter;
+    }
 
-        return $this;
+    /**
+     * @return string
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
+    public function getImdbUser(): string
+    {
+        if (empty($this->sImdbUser)) {
+            throw new Exception('Imdb User not set');
+        }
+
+        return $this->sImdbUser;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLang(): string
+    {
+        return $this->sLangCode;
+    }
+
+    /**
+     * Get logger instance
+     *
+     * @return \Psr\Log\LoggerInterface
+     */
+    public function getLogger(): LoggerInterface
+    {
+        return $this->oLogger;
+    }
+
+    /**
+     * @return string
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
+    public function getOmdbToken(): string
+    {
+        if (empty($this->sOmdbToken)) {
+            throw new Exception('Tmdb Token not set');
+        }
+
+        return $this->sOmdbToken;
+    }
+
+    /**
+     * @return string
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
+    public function getTmdbToken(): string
+    {
+        if (empty($this->sTmdbToken)) {
+            throw new Exception('Tmdb Token not set');
+        }
+
+        return $this->sTmdbToken;
     }
 
     /**
@@ -122,66 +172,6 @@ class Client
     }
 
     /**
-     * Get logger instance
-     *
-     * @return \Psr\Log\LoggerInterface
-     */
-    public function getLogger(): LoggerInterface
-    {
-        return $this->oLogger;
-    }
-
-    /**
-     * @param string $token
-     *
-     * @return \mrcnpdlk\Xmdb\Client
-     */
-    public function setTmdbToken(string $token): Client
-    {
-        $this->sTmdbToken = $token;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     * @throws \mrcnpdlk\Xmdb\Exception
-     */
-    public function getTmdbToken(): string
-    {
-        if (empty($this->sTmdbToken)) {
-            throw new Exception('Tmdb Token not set');
-        }
-
-        return $this->sTmdbToken;
-    }
-
-    /**
-     * @return string
-     * @throws \mrcnpdlk\Xmdb\Exception
-     */
-    public function getOmdbToken(): string
-    {
-        if (empty($this->sOmdbToken)) {
-            throw new Exception('Tmdb Token not set');
-        }
-
-        return $this->sOmdbToken;
-    }
-
-    /**
-     * @param string $user
-     *
-     * @return \mrcnpdlk\Xmdb\Client
-     */
-    public function setOmdbToken(string $user): Client
-    {
-        $this->sOmdbToken = $user;
-
-        return $this;
-    }
-
-    /**
      * @param string $user
      *
      * @return \mrcnpdlk\Xmdb\Client
@@ -191,27 +181,6 @@ class Client
         $this->sImdbUser = $user;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     * @throws \mrcnpdlk\Xmdb\Exception
-     */
-    public function getImdbUser(): string
-    {
-        if (empty($this->sImdbUser)) {
-            throw new Exception('Imdb User not set');
-        }
-
-        return $this->sImdbUser;
-    }
-
-    /**
-     * @return \mrcnpdlk\Psr16Cache\Adapter
-     */
-    public function getAdapter(): Adapter
-    {
-        return $this->oCacheAdapter;
     }
 
     /**
@@ -227,10 +196,41 @@ class Client
     }
 
     /**
-     * @return string
+     * Set Logger handler (PSR-3)
+     *
+     * @param \Psr\Log\LoggerInterface|null $oLogger
+     *
+     * @return $this
      */
-    public function getLang()
+    public function setLoggerInstance(LoggerInterface $oLogger = null)
     {
-        return $this->sLangCode;
+        $this->oLogger = $oLogger ?: new NullLogger();
+        $this->setCacheAdapter();
+
+        return $this;
+    }
+
+    /**
+     * @param string $user
+     *
+     * @return \mrcnpdlk\Xmdb\Client
+     */
+    public function setOmdbToken(string $user): Client
+    {
+        $this->sOmdbToken = $user;
+
+        return $this;
+    }
+
+    /**
+     * @param string $token
+     *
+     * @return \mrcnpdlk\Xmdb\Client
+     */
+    public function setTmdbToken(string $token): Client
+    {
+        $this->sTmdbToken = $token;
+
+        return $this;
     }
 }

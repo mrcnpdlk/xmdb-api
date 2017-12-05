@@ -143,8 +143,8 @@ class Tmdb
                 $oTitle->isMovie      = false;
                 $oTitle->overview     = $item['overview'];
                 $oTitle->releaseYear  = $oTitle->releaseDate ? Carbon::parse($oTitle->releaseDate)->format('Y') : null;
-            } elseif (\count($find['movie_results']) === 1 && \count($find['tv_results']) === 1 && !empty($find['tv_results'])
-                && !empty($find['movie_results'])) {
+            } elseif (!empty($find['tv_results']) && !empty($find['movie_results']) && \count($find['movie_results']) === 1  && \count($find['tv_results']) === 1
+                ) {
                 throw new RuntimeException('Too many items in TMDB database');
             } else {
                 throw new NotFound('TMDB response empty');
@@ -334,7 +334,7 @@ class Tmdb
                 ])
             ;
             foreach ($tList['results'] ?? [] as $item) {
-                if (in_array($item['media_type'], ['tv', 'movie'], true)) {
+                if (\in_array($item['media_type'], ['tv', 'movie'], true)) {
                     $oTitle               = new Title();
                     $oTitle->id           = $item['id'];
                     $oTitle->isMovie      = $item['media_type'] === 'movie';
