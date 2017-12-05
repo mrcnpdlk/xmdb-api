@@ -50,6 +50,10 @@ class Client
      * @var string
      */
     private $sLangCode;
+    /**
+     * @var string
+     */
+    private $sOmdbToken;
 
     /**
      * Client constructor.
@@ -137,6 +141,31 @@ class Client
         }
 
         return $this->sTmdbToken;
+    }
+
+    /**
+     * @return string
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
+    public function getOmdbToken(): string
+    {
+        if (empty($this->sOmdbToken)) {
+            throw new Exception('Tmdb Token not set');
+        }
+
+        return $this->sOmdbToken;
+    }
+
+    /**
+     * @param string $user
+     *
+     * @return \mrcnpdlk\Xmdb\Client
+     */
+    public function setOmdbToken(string $user): Client
+    {
+        $this->sOmdbToken = $user;
+
+        return $this;
     }
 
     /**
