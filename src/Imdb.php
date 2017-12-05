@@ -64,21 +64,26 @@ class Imdb
     {
         /**
          * @var Title[] $answer
+         * @var Title[] $tmpList
          */
         $answer      = [];
-        $tAddedIds   = [];
+        $tmpList     = [];
         $tNativeList = $this->searchByTitleNative($title);
         foreach ($tNativeList as $item) {
-            $answer[]    = $item;
-            $tAddedIds[] = $item->imdbId;
+            $tmpList[$item->imdbId] = $item;
         }
 
         $tApiList = $this->searchByTitleApi($title);
         foreach ($tApiList as $item) {
-            if (!\in_array($item->imdbId, $tAddedIds)) {
-                $answer[]    = $item;
-                $tAddedIds[] = $item->imdbId;
+            if (!\array_key_exists($item->imdbId, $tmpList)) {
+                $tmpList[$item->imdbId] = $item;
+            } else {
+                $tmpList[$item->imdbId]->isMovie = $tmpList[$item->imdbId]->isMovie ?? $item->isMovie;
             }
+        }
+
+        foreach ($tmpList as $item) {
+            $answer[] = $item;
         }
 
         return $answer;
@@ -150,6 +155,13 @@ class Imdb
                     $foundRating = trim($ratingNode->text());
                 }
 
+                $metascoreNode  = $content->find('div.ratings-bar div.ratings-metascore', 0);
+                $foundMetascore = null;
+                if ($metascoreNode) {
+                    $oSpanNode      = $metascoreNode->find('span', 0);
+                    $foundMetascore = $oSpanNode ? (int)$oSpanNode->text() : null;
+                }
+
                 $idNode = $element->find('div.lister-top-right div.ribbonize', 0);
                 $imdbId = null;
                 if ($idNode) {
@@ -178,6 +190,7 @@ class Imdb
                     $oTitle->title           = $foundTitle;
                     $oTitle->imdbId          = $imdbId;
                     $oTitle->rating          = $foundRating;
+                    $oTitle->metascore       = $foundMetascore;
                     $oTitle->episode         = $foundEpisode;
                     $oTitle->year            = $foundYear;
                     $oTitle->type            = $foundType;

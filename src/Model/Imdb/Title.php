@@ -27,6 +27,10 @@ class Title
      */
     public $rating;
     /**
+     * @var integer|null
+     */
+    public $metascore;
+    /**
      * @var string
      */
     public $episode;
