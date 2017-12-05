@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "410b5981fad4a9e45e78917899d7f91d",
+    "content-hash": "df1c1d23b20a4a61c8d41d4735600225",
     "packages": [
         {
             "name": "campo/random-user-agent",
@@ -120,50 +120,6 @@
                 "caching"
             ],
             "time": "2017-07-22T12:49:21+00:00"
-        },
-        {
-            "name": "fabianbeiner/php-imdb-grabber",
-            "version": "v6.0.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/FabianBeiner/PHP-IMDB-Grabber.git",
-                "reference": "00ddbce38425ad832cf78e4651993e7ccf2f9ad9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/FabianBeiner/PHP-IMDB-Grabber/zipball/00ddbce38425ad832cf78e4651993e7ccf2f9ad9",
-                "reference": "00ddbce38425ad832cf78e4651993e7ccf2f9ad9",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "php": ">=5.6.0"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "imdb.class.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabian Beiner",
-                    "email": "fb@fabianbeiner.de",
-                    "homepage": "https://fabianbeiner.de/"
-                }
-            ],
-            "description": "This PHP library enables you to scrap data from IMDB.com.",
-            "homepage": "https://github.com/FabianBeiner/PHP-IMDB-Grabber",
-            "keywords": [
-                "api",
-                "client",
-                "imdb"
-            ],
-            "time": "2017-04-24T19:08:50+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1646,6 +1602,50 @@
                 "instantiate"
             ],
             "time": "2015-06-14T21:17:01+00:00"
+        },
+        {
+            "name": "fabianbeiner/php-imdb-grabber",
+            "version": "v6.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/FabianBeiner/PHP-IMDB-Grabber.git",
+                "reference": "00ddbce38425ad832cf78e4651993e7ccf2f9ad9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/FabianBeiner/PHP-IMDB-Grabber/zipball/00ddbce38425ad832cf78e4651993e7ccf2f9ad9",
+                "reference": "00ddbce38425ad832cf78e4651993e7ccf2f9ad9",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "imdb.class.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabian Beiner",
+                    "email": "fb@fabianbeiner.de",
+                    "homepage": "https://fabianbeiner.de/"
+                }
+            ],
+            "description": "This PHP library enables you to scrap data from IMDB.com.",
+            "homepage": "https://github.com/FabianBeiner/PHP-IMDB-Grabber",
+            "keywords": [
+                "api",
+                "client",
+                "imdb"
+            ],
+            "time": "2017-04-24T19:08:50+00:00"
         },
         {
             "name": "monolog/monolog",
