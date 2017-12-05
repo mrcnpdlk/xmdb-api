@@ -9,7 +9,7 @@
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
  *
- * @author Marcin Pudełek <marcin@pudelek.org.pl>
+ * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
 /**
@@ -23,9 +23,14 @@ namespace mrcnpdlk\Xmdb;
 
 use Campo\UserAgent;
 use Curl\Curl;
+use HttpLib\Http;
 use Imdb\Cache;
 use Imdb\Config;
 use Imdb\TitleSearch;
+use mrcnpdlk\Xmdb\Model\Imdb\Character;
+use mrcnpdlk\Xmdb\Model\Imdb\Image;
+use mrcnpdlk\Xmdb\Model\Imdb\Info;
+use mrcnpdlk\Xmdb\Model\Imdb\Person;
 use mrcnpdlk\Xmdb\Model\Imdb\Title;
 use Sunra\PhpSimple\HtmlDomParser;
 
@@ -38,6 +43,11 @@ class Imdb
      * @var \mrcnpdlk\Xmdb\Client
      */
     private $oClient;
+    /**
+     * @var \Imdb\Config
+     */
+    private $oConfig;
+    /** @noinspection PhpUndefinedClassInspection */
 
     /**
      * @var \Psr\Log\LoggerInterface
@@ -63,6 +73,78 @@ class Imdb
 
         } catch (\Exception $e) {
             throw new Exception(sprintf('Cannot create Tmdb Client'), 1, $e);
+        }
+    }
+
+    /**
+     * @param string $imdbId
+     *
+     * @return \mrcnpdlk\Xmdb\Model\Imdb\Info
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
+    public function getInfo(string $imdbId): Info
+    {
+        try {
+            $searchUrl = 'http://app.imdb.com/title/maindetails?tconst=' . $imdbId;
+
+            $oResp = $this->oClient->getAdapter()->useCache(
+                function () use ($searchUrl) {
+                    $oCurl = new Curl();
+                    $oCurl->setUserAgent(UserAgent::random());
+                    $oCurl->setHeader('Accept-Language', $this->oClient->getLang());
+                    $oCurl->get($searchUrl);
+
+                    if ($oCurl->error) {
+                        throw new \RuntimeException('Curl Error! ' . Http::message($oCurl->httpStatusCode), $oCurl->error_code);
+                    }
+
+                    return $oCurl->response->data ?? null;
+                },
+                [$searchUrl, $this->oClient->getLang()],
+                3600 * 2)
+            ;
+            $oData = $oResp->data ?? $oResp;
+
+            $oInfo              = new Info();
+            $oInfo->id          = $oData->tconst;
+            $oInfo->title       = $oData->title;
+            $oInfo->year        = $oData->year;
+            $oInfo->image       = isset($oData->image) ? new Image($oData->image->url, $oData->image->width, $oData->image->height) : null;
+            $oInfo->releaseDate = $oData->release_date->normal ?? null;
+            $oInfo->genres      = $oData->genres;
+            $oInfo->rating      = $oData->rating;
+            $oInfo->votes       = $oData->num_votes;
+            $oInfo->runtime     = $oData->runtime->time ?? null;
+
+            foreach ($oData->directors_summary ?? [] as $oDir) {
+                $oPerson            = $oDir->name;
+                $oImage             = isset($oPerson->image) ? new Image($oPerson->image->url, $oPerson->image->width,
+                    $oPerson->image->height) : null;
+                $oInfo->directors[] = new Person($oPerson->nconst, $oPerson->name, $oImage);
+            }
+
+            foreach ($oData->writers_summary ?? [] as $oDir) {
+                $oPerson          = $oDir->name;
+                $oImage           = isset($oPerson->image) ? new Image($oPerson->image->url, $oPerson->image->width,
+                    $oPerson->image->height) : null;
+                $oInfo->writers[] = new Person($oPerson->nconst, $oPerson->name, $oImage);
+            }
+
+            foreach ($oData->photos ?? [] as $photo) {
+                $oInfo->photos[] = new Image($photo->image->url, $photo->image->width, $photo->image->height);
+            }
+
+            foreach ($oData->cast_summary ?? [] as $ch) {
+                $oImage        = $ch->name->image ? new Image($ch->name->image->url, $ch->name->image->width,
+                    $ch->name->image->height) : null;
+                $oPerson       = $ch->name ? new Person($ch->name->nconst, $ch->name->name, $oImage) : null;
+                $oInfo->cast[] = new Character($ch->char, $oPerson);
+            }
+
+            return $oInfo;
+
+        } catch (\Exception $e) {
+            throw new Exception(sprintf('Item [%s] not found, reason: %s', $imdbId, $e->getMessage()));
         }
     }
 
@@ -100,6 +182,50 @@ class Imdb
         }
 
         return $answer;
+    }
+
+    /**
+     * @param string $title
+     *
+     * @param bool   $extendedSearch
+     *
+     * @return Title[]
+     */
+    public function searchByTitleApi(string $title): array
+    {
+        try {
+            $answer       = [];
+            $oTitleSearch = new TitleSearch($this->oConfig, $this->oLog, new Cache($this->oConfig, $this->oLog));
+            $tList        = $oTitleSearch->search($title, [
+                TitleSearch::MOVIE,
+                TitleSearch::TV_SERIES,
+                TitleSearch::VIDEO,
+                TitleSearch::TV_MOVIE,
+            ]);
+
+            foreach ($tList as $element) {
+                $oTitle                  = new Title();
+                $oTitle->imdbId          = 'tt' . $element->imdbid();
+                $oTitle->title           = $element->title();
+                $oTitle->rating          = null; //set null for speedy
+                $oTitle->episode         = null;
+                $oTitle->year            = empty($element->year()) ? null : $element->year();
+                $oTitle->type            = $element->movietype();
+                $oTitle->isMovie         = \in_array($element->movietype(), [TitleSearch::MOVIE, TitleSearch::TV_MOVIE, TitleSearch::VIDEO],
+                    true);
+                $oTitle->director        = [];
+                $oTitle->directorDisplay = implode(', ', $oTitle->director);
+                $oTitle->star            = [];
+                $oTitle->starDisplay     = implode(', ', $oTitle->star);
+                $answer[]                = $oTitle;
+            }
+
+            return $answer;
+        } catch (\Exception $e) {
+            $this->oLog->warning(sprintf('Item [%s] not found, reason: %s', $title, $e->getMessage()));
+
+            return [];
+        }
     }
 
     /**
@@ -223,42 +349,5 @@ class Imdb
 
             return [];
         }
-    }
-
-    /**
-     * @param string $title
-     *
-     * @param bool   $extendedSearch
-     *
-     * @return Title[]
-     */
-    public function searchByTitleApi(string $title, bool $extendedSearch = true): array
-    {
-        $answer       = [];
-        $oTitleSearch = new TitleSearch($this->oConfig, $this->oLog, new Cache($this->oConfig, $this->oLog));
-        $tList        = $oTitleSearch->search($title, [
-            TitleSearch::MOVIE,
-            TitleSearch::TV_SERIES,
-            TitleSearch::VIDEO,
-            TitleSearch::TV_MOVIE,
-        ]);
-
-        foreach ($tList as $element) {
-            $oTitle                  = new Title();
-            $oTitle->imdbId          = 'tt' . $element->imdbid();
-            $oTitle->title           = $element->title();
-            $oTitle->rating          = null; //set null for speedy
-            $oTitle->episode         = null;
-            $oTitle->year            = empty($element->year()) ? null : $element->year();
-            $oTitle->type            = $element->movietype();
-            $oTitle->isMovie         = \in_array($element->movietype(), [TitleSearch::MOVIE, TitleSearch::TV_MOVIE, TitleSearch::VIDEO], true);
-            $oTitle->director        = [];
-            $oTitle->directorDisplay = implode(', ', $oTitle->director);
-            $oTitle->star            = [];
-            $oTitle->starDisplay     = implode(', ', $oTitle->star);
-            $answer[]                = $oTitle;
-        }
-
-        return $answer;
     }
 }
