@@ -27,10 +27,12 @@ use HttpLib\Http;
 use Imdb\Cache;
 use Imdb\Config;
 use Imdb\TitleSearch;
+use KHerGe\JSON\JSON;
 use mrcnpdlk\Xmdb\Model\Imdb\Character;
 use mrcnpdlk\Xmdb\Model\Imdb\Image;
 use mrcnpdlk\Xmdb\Model\Imdb\Info;
 use mrcnpdlk\Xmdb\Model\Imdb\Person;
+use mrcnpdlk\Xmdb\Model\Imdb\Rating;
 use mrcnpdlk\Xmdb\Model\Imdb\Title;
 use Sunra\PhpSimple\HtmlDomParser;
 
@@ -142,6 +144,62 @@ class Imdb
             }
 
             return $oInfo;
+
+        } catch (\Exception $e) {
+            throw new Exception(sprintf('Item [%s] not found, reason: %s', $imdbId, $e->getMessage()));
+        }
+    }
+
+    /**
+     * @param string $imdbId
+     *
+     * @return \mrcnpdlk\Xmdb\Model\Imdb\Rating
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
+    public function getRating(string $imdbId): Rating
+    {
+        try {
+            $searchUrl = "http://p.media-imdb.com/static-content/documents/v1/title/"
+                . $imdbId
+                . "/ratings%3Fjsonp=imdb.rating.run:imdb.api.title.ratings/data.json?u="
+                . $this->oClient->getImdbUser();
+
+            $oResp = $this->oClient->getAdapter()->useCache(
+                function () use ($searchUrl) {
+                    $oCurl = new Curl();
+                    $oCurl->setOpt(\CURLOPT_ENCODING, 'gzip');
+                    $oCurl->setUserAgent(UserAgent::random());
+                    $oCurl->setHeader('Accept-Language', $this->oClient->getLang());
+                    $oCurl->get($searchUrl);
+
+                    if ($oCurl->error) {
+                        throw new \RuntimeException('Curl Error! ' . Http::message($oCurl->httpStatusCode), $oCurl->error_code);
+                    }
+
+                    preg_match("/^[\w\.]*\((.*)\)$/", $oCurl->response, $output_array);
+                    $json = new JSON();
+
+                    return $json->decode($output_array[1]);
+                },
+                [$searchUrl, $this->oClient->getLang()],
+                180)
+            ;
+
+            if (!isset($oResp->resource)) {
+                throw new \RuntimeException('Resource is empty');
+            }
+
+            $oData = $oResp->resource;
+
+            $oRating         = new Rating();
+            $oRating->id     = $imdbId;
+            $oRating->title  = $oData->title;
+            $oRating->year   = $oData->year;
+            $oRating->rating = $oData->rating;
+            $oRating->votes  = $oData->ratingCount;
+            $oRating->type   = $oData->titleType;
+
+            return $oRating;
 
         } catch (\Exception $e) {
             throw new Exception(sprintf('Item [%s] not found, reason: %s', $imdbId, $e->getMessage()));
