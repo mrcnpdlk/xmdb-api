@@ -72,6 +72,7 @@ class Imdb
             $this->oConfig                = new Config();
             $this->oConfig->usecache      = null !== $cacheDir;
             $this->oConfig->cachedir      = $cacheDir;
+            $this->oConfig->photodir      = $cacheDir . '/images';
             $this->oConfig->language      = $oClient->getLang();
             $this->oConfig->default_agent = UserAgent::random();
 
