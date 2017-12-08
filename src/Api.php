@@ -9,7 +9,7 @@
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
  *
- * @author Marcin Pudełek <marcin@pudelek.org.pl>
+ * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
 /**
@@ -31,6 +31,15 @@ class Api
      * @var \mrcnpdlk\Xmdb\Client
      */
     private $oClient;
+
+    /**
+     * @var \mrcnpdlk\Xmdb\Tmdb
+     */
+    private $oTmdbApi;
+    /**
+     * @var \mrcnpdlk\Xmdb\Imdb
+     */
+    private $oImdbApi;
 
 
     /**
@@ -78,4 +87,29 @@ class Api
         return $this->oClient;
     }
 
+    /**
+     * @return \mrcnpdlk\Xmdb\Imdb
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
+    public function getImdbApi(): Imdb
+    {
+        if (null === $this->oImdbApi) {
+            $this->oImdbApi = new Imdb($this->oClient);
+        }
+
+        return $this->oImdbApi;
+    }
+
+    /**
+     * @return \mrcnpdlk\Xmdb\Tmdb
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
+    public function getTmdbApi(): Tmdb
+    {
+        if (null === $this->oTmdbApi) {
+            $this->oTmdbApi = new Tmdb($this->oClient);
+        }
+
+        return $this->oTmdbApi;
+    }
 }
