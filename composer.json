@@ -37,7 +37,7 @@
     "kherge/json": "~2",
     "httplib/http": "~1",
     "campo/random-user-agent": "~1",
-    "imdbphp/imdbphp": "~5",
+    "mrcnpdlk/imdbphp": "~6",
     "nesbot/carbon": "~1"
   },
   "require-dev": {

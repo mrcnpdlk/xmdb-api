@@ -55,24 +55,26 @@ class Imdb
      * @var \Psr\Log\LoggerInterface
      */
     private $oLog;
+    /**
+     * @var \Psr\SimpleCache\CacheInterface
+     */
+    private $oCache;
 
     /**
      * Imdb constructor.
      *
      * @param \mrcnpdlk\Xmdb\Client $oClient
-     * @param string                $cacheDir If NULL disable cache
      *
      * @throws \mrcnpdlk\Xmdb\Exception
      */
-    public function __construct(Client $oClient, string $cacheDir = null)
+    public function __construct(Client $oClient)
     {
         try {
             $this->oClient                = $oClient;
             $this->oLog                   = $oClient->getLogger();
+            $this->oCache                 = $oClient->getAdapter()->getCache();
             $this->oConfig                = new Config();
-            $this->oConfig->usecache      = null !== $cacheDir;
-            $this->oConfig->cachedir      = $cacheDir;
-            $this->oConfig->photodir      = $cacheDir . '/images';
+            $this->oConfig->usecache      = null !== $this->oCache;
             $this->oConfig->language      = $oClient->getLang();
             $this->oConfig->default_agent = UserAgent::random();
 
@@ -251,6 +253,48 @@ class Imdb
      *
      * @return Title[]
      */
+    public function searchByTitleApi(string $title): array
+    {
+        try {
+            $answer       = [];
+            $oTitleSearch = new TitleSearch($this->oConfig, $this->oLog, $this->oCache);
+            $tList        = $oTitleSearch->search($title, [
+                TitleSearch::MOVIE,
+                TitleSearch::TV_SERIES,
+                TitleSearch::VIDEO,
+                TitleSearch::TV_MOVIE,
+            ]);
+
+            foreach ($tList as $element) {
+                $oTitle                  = new Title();
+                $oTitle->imdbId          = 'tt' . $element->imdbid();
+                $oTitle->title           = $element->title();
+                $oTitle->rating          = null; //set null for speedy
+                $oTitle->episode         = null;
+                $oTitle->year            = empty($element->year()) ? null : $element->year();
+                $oTitle->type            = $element->movietype();
+                $oTitle->isMovie         = \in_array($element->movietype(), [TitleSearch::MOVIE, TitleSearch::TV_MOVIE, TitleSearch::VIDEO],
+                    true);
+                $oTitle->director        = [];
+                $oTitle->directorDisplay = implode(', ', $oTitle->director);
+                $oTitle->star            = [];
+                $oTitle->starDisplay     = implode(', ', $oTitle->star);
+                $answer[]                = $oTitle;
+            }
+
+            return $answer;
+        } catch (\Exception $e) {
+            $this->oLog->warning(sprintf('Item [%s] not found, reason: %s', $title, $e->getMessage()));
+
+            return [];
+        }
+    }
+
+    /**
+     * @param string $title
+     *
+     * @return Title[]
+     */
     public function searchByTitleNative(string $title): array
     {
         try {
@@ -359,48 +403,6 @@ class Imdb
                     $answer[] = $oTitle;
                 }
 
-            }
-
-            return $answer;
-        } catch (\Exception $e) {
-            $this->oLog->warning(sprintf('Item [%s] not found, reason: %s', $title, $e->getMessage()));
-
-            return [];
-        }
-    }
-
-    /**
-     * @param string $title
-     *
-     * @return Title[]
-     */
-    public function searchByTitleApi(string $title): array
-    {
-        try {
-            $answer       = [];
-            $oTitleSearch = new TitleSearch($this->oConfig, $this->oLog, new Cache($this->oConfig, $this->oLog));
-            $tList        = $oTitleSearch->search($title, [
-                TitleSearch::MOVIE,
-                TitleSearch::TV_SERIES,
-                TitleSearch::VIDEO,
-                TitleSearch::TV_MOVIE,
-            ]);
-
-            foreach ($tList as $element) {
-                $oTitle                  = new Title();
-                $oTitle->imdbId          = 'tt' . $element->imdbid();
-                $oTitle->title           = $element->title();
-                $oTitle->rating          = null; //set null for speedy
-                $oTitle->episode         = null;
-                $oTitle->year            = empty($element->year()) ? null : $element->year();
-                $oTitle->type            = $element->movietype();
-                $oTitle->isMovie         = \in_array($element->movietype(), [TitleSearch::MOVIE, TitleSearch::TV_MOVIE, TitleSearch::VIDEO],
-                    true);
-                $oTitle->director        = [];
-                $oTitle->directorDisplay = implode(', ', $oTitle->director);
-                $oTitle->star            = [];
-                $oTitle->starDisplay     = implode(', ', $oTitle->star);
-                $answer[]                = $oTitle;
             }
 
             return $answer;

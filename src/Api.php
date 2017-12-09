@@ -40,6 +40,10 @@ class Api
      * @var \mrcnpdlk\Xmdb\Imdb
      */
     private $oImdbApi;
+    /**
+     * @var \mrcnpdlk\Xmdb\Omdb
+     */
+    private $oOmdbApi;
 
 
     /**
@@ -88,15 +92,13 @@ class Api
     }
 
     /**
-     * @param string $cacheDir If NULL disable cache
-     *
      * @return \mrcnpdlk\Xmdb\Imdb
      * @throws \mrcnpdlk\Xmdb\Exception
      */
-    public function getImdbApi(string $cacheDir = null): Imdb
+    public function getImdbApi(): Imdb
     {
         if (null === $this->oImdbApi) {
-            $this->oImdbApi = new Imdb($this->oClient, $cacheDir);
+            $this->oImdbApi = new Imdb($this->oClient);
         }
 
         return $this->oImdbApi;
