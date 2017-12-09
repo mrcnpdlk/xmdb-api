@@ -113,6 +113,11 @@ class Title
      */
     public $website;
 
+    /**
+     * @param \stdClass $oData
+     *
+     * @return static
+     */
     public static function create(\stdClass $oData)
     {
         $oTitle               = new static();
@@ -136,9 +141,9 @@ class Title
         $oTitle->type         = $oData->Type;
         $oTitle->totalSeasons = !isset($oData->totalSeasons) || $oData->totalSeasons === 'N/A' ? null : (int)$oData->totalSeasons;
         $oTitle->dvd          = isset($oData->DVD) ? Carbon::parse($oData->DVD)->format('Y-m-d') : null;
-        $oTitle->boxOffice    = $oData->BoxOffice ?? null;
-        $oTitle->production   = $oData->Production ?? null;
-        $oTitle->website      = $oData->Website ?? null;
+        $oTitle->boxOffice    = !isset($oData->BoxOffice) || $oData->BoxOffice === 'N/A' ? null : $oData->BoxOffice;
+        $oTitle->production   = !isset($oData->Production) || $oData->Production === 'N/A' ? null : $oData->Production;
+        $oTitle->website      = !isset($oData->Website) || $oData->Website === 'N/A' ? null : $oData->Website;
 
         foreach ($oData->Ratings as $rating) {
             $oTitle->ratings[] = new Rating($rating->Source, $rating->Value);

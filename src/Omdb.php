@@ -52,6 +52,55 @@ class Omdb
         $this->url      = 'http://www.omdbapi.com/?r=json&apikey=' . $oClient->getOmdbToken();
     }
 
+    /**
+     * @param string $imdbId
+     *
+     * @return Title
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
+    public function getByImdbId(string $imdbId)
+    {
+        try {
+            $oResp = $this->oClient->getAdapter()->useCache(
+                function () use ($imdbId) {
+                    $oCurl = new Curl();
+                    $oCurl->setUserAgent(UserAgent::random());
+                    $oCurl->setHeader('Accept-Language', $this->oClient->getLang());
+                    $params = [
+                        'i'    => $imdbId,
+                        'plot' => 'full',
+                        'r'    => 'json',
+                    ];
+                    $oCurl->get($this->url . '&' . http_build_query($params));
+
+                    if ($oCurl->error) {
+                        throw new \RuntimeException('Curl Error! ' . ($oCurl->httpStatusCode ? Http::message($oCurl->httpStatusCode) : 'Unknown code'),
+                            $oCurl->error_code);
+                    }
+                    if ($oCurl->response->Response !== 'True') {
+                        throw new \RuntimeException($oCurl->response->Error);
+                    }
+
+                    return $oCurl->response;
+                },
+                [__METHOD__, $imdbId, $this->oClient->getLang()],
+                3600 * 2)
+            ;
+
+
+            return Title::create($oResp);
+
+        } catch (\Exception $e) {
+            throw new Exception($e->getMessage(), 1, $e);
+        }
+    }
+
+    /**
+     * @param string $title
+     *
+     * @return Title
+     * @throws \mrcnpdlk\Xmdb\Exception
+     */
     public function getByTitle(string $title)
     {
         try {
@@ -63,6 +112,7 @@ class Omdb
                     $params = [
                         't'    => $title,
                         'plot' => 'full',
+                        'r'    => 'json',
                     ];
                     $oCurl->get($this->url . '&' . http_build_query($params));
 
@@ -70,17 +120,21 @@ class Omdb
                         throw new \RuntimeException('Curl Error! ' . ($oCurl->httpStatusCode ? Http::message($oCurl->httpStatusCode) : 'Unknown code'),
                             $oCurl->error_code);
                     }
+                    if ($oCurl->response->Response !== 'True') {
+                        throw new \RuntimeException($oCurl->response->Error);
+                    }
 
                     return $oCurl->response;
                 },
-                [$title, $this->oClient->getLang()],
+                [__METHOD__, $title, $this->oClient->getLang()],
                 3600 * 2)
             ;
+
 
             return Title::create($oResp);
 
         } catch (\Exception $e) {
-            return new Exception($e->getMessage(), 1, $e);
+            throw new Exception($e->getMessage(), 1, $e);
         }
     }
 }
