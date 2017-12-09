@@ -105,6 +105,18 @@ class Api
     }
 
     /**
+     * @return \mrcnpdlk\Xmdb\Omdb
+     */
+    public function getOmdbApi(): Omdb
+    {
+        if (null === $this->oOmdbApi) {
+            $this->oOmdbApi = new Omdb($this->oClient);
+        }
+
+        return $this->oOmdbApi;
+    }
+
+    /**
      * @return \mrcnpdlk\Xmdb\Tmdb
      * @throws \mrcnpdlk\Xmdb\Exception
      */
