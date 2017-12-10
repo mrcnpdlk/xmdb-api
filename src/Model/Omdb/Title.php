@@ -145,7 +145,7 @@ class Title
         $oTitle->production   = !isset($oData->Production) || $oData->Production === 'N/A' ? null : $oData->Production;
         $oTitle->website      = !isset($oData->Website) || $oData->Website === 'N/A' ? null : $oData->Website;
 
-        foreach ($oData->Ratings as $rating) {
+        foreach ((array)$oData->Ratings as $rating) {
             $oTitle->ratings[] = new Rating($rating->Source, $rating->Value);
         }
 

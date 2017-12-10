@@ -106,6 +106,7 @@ class Api
 
     /**
      * @return \mrcnpdlk\Xmdb\Omdb
+     * @throws \mrcnpdlk\Xmdb\Exception
      */
     public function getOmdbApi(): Omdb
     {

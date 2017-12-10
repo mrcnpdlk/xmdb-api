@@ -26,7 +26,9 @@ use Curl\Curl;
 use HttpLib\Http;
 use Imdb\Cache;
 use Imdb\Config;
+use Imdb\Title as ApiTitle;
 use Imdb\TitleSearch;
+use Imdb\TitleSearch as ApiTitleSearch;
 use KHerGe\JSON\JSON;
 use mrcnpdlk\Xmdb\Model\Imdb\Character;
 use mrcnpdlk\Xmdb\Model\Imdb\Image;
@@ -89,17 +91,17 @@ class Imdb
      *
      * @return \Imdb\Title
      */
-    protected function getApiTitle(string $imdbId)
+    protected function getApiTitle(string $imdbId): ApiTitle
     {
-        return new \Imdb\Title($imdbId, $this->oConfig, $this->oLog, $this->oCache);
+        return new ApiTitle($imdbId, $this->oConfig, $this->oLog, $this->oCache);
     }
 
     /**
      * @return \Imdb\TitleSearch
      */
-    protected function getApiTitleSearch()
+    protected function getApiTitleSearch(): TitleSearch
     {
-        return new \Imdb\TitleSearch($this->oConfig, $this->oLog, $this->oCache);
+        return new ApiTitleSearch($this->oConfig, $this->oLog, $this->oCache);
     }
 
     /**
@@ -144,7 +146,7 @@ class Imdb
             $oInfo->votes       = $oData->num_votes;
 
             $sRuntime       = $oApiTitle->runtime();
-            $oInfo->runtime = empty($sRuntime) ? null : (int)$sRuntime;
+            $oInfo->runtime = null === $sRuntime ? null : (int)$sRuntime;
 
             $tmp = [];
             foreach ($oData->directors_summary ?? [] as $oDir) {
