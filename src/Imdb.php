@@ -142,7 +142,9 @@ class Imdb
             $oInfo->genres      = $oData->genres;
             $oInfo->rating      = $oData->rating;
             $oInfo->votes       = $oData->num_votes;
-            $oInfo->runtime     = $oApiTitle->runtime();
+
+            $sRuntime       = $oApiTitle->runtime();
+            $oInfo->runtime = empty($sRuntime) ? null : (int)$sRuntime;
 
             $tmp = [];
             foreach ($oData->directors_summary ?? [] as $oDir) {
@@ -169,7 +171,7 @@ class Imdb
             }
 
             foreach ($oData->cast_summary ?? [] as $ch) {
-                $oImage        = $ch->name->image ? new Image($ch->name->image->url, $ch->name->image->width,
+                $oImage        = isset($ch->name->image) ? new Image($ch->name->image->url, $ch->name->image->width,
                     $ch->name->image->height) : null;
                 $oPerson       = $ch->name ? new Person($ch->name->nconst, $ch->name->name, $oImage) : null;
                 $oInfo->cast[] = new Character($ch->char, $oPerson);
@@ -181,7 +183,7 @@ class Imdb
 
             $oInfo->genresDisplay    = implode(', ', $oInfo->genres);
             $oInfo->countriesDisplay = implode(', ', $oInfo->countries);
-            
+
             return $oInfo;
 
         } catch (\Exception $e) {
