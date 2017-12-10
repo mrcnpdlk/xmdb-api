@@ -131,6 +131,8 @@ class Imdb
             ;
             $oData = $oResp->data ?? $oResp;
 
+            $oApiTitle = $this->getApiTitle($imdbId);
+
             $oInfo              = new Info();
             $oInfo->id          = $oData->tconst;
             $oInfo->title       = $oData->title;
@@ -140,7 +142,7 @@ class Imdb
             $oInfo->genres      = $oData->genres;
             $oInfo->rating      = $oData->rating;
             $oInfo->votes       = $oData->num_votes;
-            $oInfo->runtime     = $oData->runtime->time ?? null;
+            $oInfo->runtime     = $oApiTitle->runtime();
 
             $tmp = [];
             foreach ($oData->directors_summary ?? [] as $oDir) {
@@ -148,7 +150,7 @@ class Imdb
                 $oImage             = isset($oPerson->image) ? new Image($oPerson->image->url, $oPerson->image->width,
                     $oPerson->image->height) : null;
                 $oInfo->directors[] = new Person($oPerson->nconst, $oPerson->name, $oImage);
-                $tmp[] = $oPerson->name;
+                $tmp[]              = $oPerson->name;
             }
             $oInfo->directorsDisplay = implode(', ', $tmp);
 
@@ -158,7 +160,7 @@ class Imdb
                 $oImage           = isset($oPerson->image) ? new Image($oPerson->image->url, $oPerson->image->width,
                     $oPerson->image->height) : null;
                 $oInfo->writers[] = new Person($oPerson->nconst, $oPerson->name, $oImage);
-                $tmp[] = $oPerson->name;
+                $tmp[]            = $oPerson->name;
             }
             $oInfo->writersDisplay = implode(', ', $tmp);
 
@@ -173,13 +175,13 @@ class Imdb
                 $oInfo->cast[] = new Character($ch->char, $oPerson);
             }
 
-            $oApiTitle        = $this->getApiTitle($imdbId);
+
             $oInfo->countries = $oApiTitle->country();
 
 
             $oInfo->genresDisplay    = implode(', ', $oInfo->genres);
             $oInfo->countriesDisplay = implode(', ', $oInfo->countries);
-
+            
             return $oInfo;
 
         } catch (\Exception $e) {
