@@ -12,15 +12,13 @@
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
-/**
- * Created by Marcin.
- * Date: 06.12.2017
- * Time: 00:06
- */
-
 namespace mrcnpdlk\Xmdb\Model\Imdb;
 
-
+/**
+ * Class Rating
+ *
+ * @package mrcnpdlk\Xmdb\Model\Imdb
+ */
 class Rating
 {
     /**

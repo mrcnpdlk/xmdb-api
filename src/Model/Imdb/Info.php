@@ -14,7 +14,11 @@
 
 namespace mrcnpdlk\Xmdb\Model\Imdb;
 
-
+/**
+ * Class Info
+ *
+ * @package mrcnpdlk\Xmdb\Model\Imdb
+ */
 class Info
 {
     /**
@@ -68,6 +72,6 @@ class Info
     /**
      * @var \mrcnpdlk\Xmdb\Model\Imdb\Character[]
      */
-    public $cast;
+    public $cast = [];
 
 }

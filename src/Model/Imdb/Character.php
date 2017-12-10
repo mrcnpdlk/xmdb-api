@@ -14,7 +14,11 @@
 
 namespace mrcnpdlk\Xmdb\Model\Imdb;
 
-
+/**
+ * Class Character
+ *
+ * @package mrcnpdlk\Xmdb\Model\Imdb
+ */
 class Character
 {
     /**
@@ -26,6 +30,12 @@ class Character
      */
     public $person;
 
+    /**
+     * Character constructor.
+     *
+     * @param string                                $name
+     * @param \mrcnpdlk\Xmdb\Model\Imdb\Person|null $oPerson
+     */
     public function __construct(string $name, Person $oPerson = null)
     {
         $this->name   = $name;

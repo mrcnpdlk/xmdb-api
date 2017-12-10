@@ -20,7 +20,11 @@
 
 namespace mrcnpdlk\Xmdb\Model\Imdb;
 
-
+/**
+ * Class Title
+ *
+ * @package mrcnpdlk\Xmdb\Model\Imdb
+ */
 class Title
 {
     /**
@@ -58,7 +62,7 @@ class Title
     /**
      * @var string[]
      */
-    public $director;
+    public $director = [];
     /**
      * @var string
      */
@@ -66,7 +70,7 @@ class Title
     /**
      * @var string[]
      */
-    public $star;
+    public $star = [];
     /**
      * @var string
      */
