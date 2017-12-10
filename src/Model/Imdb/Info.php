@@ -62,16 +62,36 @@ class Info
      */
     public $directors = [];
     /**
+     * @var string
+     */
+    public $directorsDisplay;
+    /**
      * @var \mrcnpdlk\Xmdb\Model\Imdb\Person[]
      */
     public $writers = [];
+    /**
+     * @var string
+     */
+    public $writersDisplay;
     /**
      * @var string[]
      */
     public $genres = [];
     /**
+     * @var string
+     */
+    public $genresDisplay;
+    /**
      * @var \mrcnpdlk\Xmdb\Model\Imdb\Character[]
      */
     public $cast = [];
+    /**
+     * @var string[]
+     */
+    public $countries = [];
+    /**
+     * @var string
+     */
+    public $countriesDisplay;
 
 }

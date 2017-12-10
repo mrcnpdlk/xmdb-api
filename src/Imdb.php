@@ -87,6 +87,24 @@ class Imdb
     /**
      * @param string $imdbId
      *
+     * @return \Imdb\Title
+     */
+    protected function getApiTitle(string $imdbId)
+    {
+        return new \Imdb\Title($imdbId, $this->oConfig, $this->oLog, $this->oCache);
+    }
+
+    /**
+     * @return \Imdb\TitleSearch
+     */
+    protected function getApiTitleSearch()
+    {
+        return new \Imdb\TitleSearch($this->oConfig, $this->oLog, $this->oCache);
+    }
+
+    /**
+     * @param string $imdbId
+     *
      * @return \mrcnpdlk\Xmdb\Model\Imdb\Info
      * @throws \mrcnpdlk\Xmdb\Exception
      */
@@ -124,19 +142,25 @@ class Imdb
             $oInfo->votes       = $oData->num_votes;
             $oInfo->runtime     = $oData->runtime->time ?? null;
 
+            $tmp = [];
             foreach ($oData->directors_summary ?? [] as $oDir) {
                 $oPerson            = $oDir->name;
                 $oImage             = isset($oPerson->image) ? new Image($oPerson->image->url, $oPerson->image->width,
                     $oPerson->image->height) : null;
                 $oInfo->directors[] = new Person($oPerson->nconst, $oPerson->name, $oImage);
+                $tmp[] = $oPerson->name;
             }
+            $oInfo->directorsDisplay = implode(', ', $tmp);
 
+            $tmp = [];
             foreach ($oData->writers_summary ?? [] as $oDir) {
                 $oPerson          = $oDir->name;
                 $oImage           = isset($oPerson->image) ? new Image($oPerson->image->url, $oPerson->image->width,
                     $oPerson->image->height) : null;
                 $oInfo->writers[] = new Person($oPerson->nconst, $oPerson->name, $oImage);
+                $tmp[] = $oPerson->name;
             }
+            $oInfo->writersDisplay = implode(', ', $tmp);
 
             foreach ($oData->photos ?? [] as $photo) {
                 $oInfo->photos[] = new Image($photo->image->url, $photo->image->width, $photo->image->height);
@@ -148,6 +172,13 @@ class Imdb
                 $oPerson       = $ch->name ? new Person($ch->name->nconst, $ch->name->name, $oImage) : null;
                 $oInfo->cast[] = new Character($ch->char, $oPerson);
             }
+
+            $oApiTitle        = $this->getApiTitle($imdbId);
+            $oInfo->countries = $oApiTitle->country();
+
+
+            $oInfo->genresDisplay    = implode(', ', $oInfo->genres);
+            $oInfo->countriesDisplay = implode(', ', $oInfo->countries);
 
             return $oInfo;
 
@@ -256,14 +287,14 @@ class Imdb
     public function searchByTitleApi(string $title): array
     {
         try {
-            $answer       = [];
-            $oTitleSearch = new TitleSearch($this->oConfig, $this->oLog, $this->oCache);
-            $tList        = $oTitleSearch->search($title, [
+            $answer = [];
+            $tList  = $this->getApiTitleSearch()->search($title, [
                 TitleSearch::MOVIE,
                 TitleSearch::TV_SERIES,
                 TitleSearch::VIDEO,
                 TitleSearch::TV_MOVIE,
-            ]);
+            ])
+            ;
 
             foreach ($tList as $element) {
                 $oTitle                  = new Title();
