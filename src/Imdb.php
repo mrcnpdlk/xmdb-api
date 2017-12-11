@@ -120,9 +120,9 @@ class Imdb
             $oInfo->year        = $oData->year;
             $oInfo->image       = isset($oData->image) ? new Image($oData->image->url, $oData->image->width, $oData->image->height) : null;
             $oInfo->releaseDate = $oData->release_date->normal ?? null;
-            $oInfo->genres      = $oData->genres;
-            $oInfo->rating      = $oData->rating;
-            $oInfo->votes       = $oData->num_votes;
+            $oInfo->genres      = $oData->genres ?? [];
+            $oInfo->rating      = $oData->rating ?? null;
+            $oInfo->votes       = $oData->num_votes ?? null;
 
             $sRuntime       = $oApiTitle->runtime();
             $oInfo->runtime = null === $sRuntime ? null : (int)$sRuntime;

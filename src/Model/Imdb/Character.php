@@ -36,7 +36,7 @@ class Character
      * @param string                                $name
      * @param \mrcnpdlk\Xmdb\Model\Imdb\Person|null $oPerson
      */
-    public function __construct(string $name, Person $oPerson = null)
+    public function __construct(string $name = null, Person $oPerson = null)
     {
         $this->name   = $name;
         $this->person = $oPerson;
