@@ -55,15 +55,17 @@ class Ratio
             $fTitleRatio    = 0;
             $fDirectorRatio = 0;
             $fYearRatio     = 0;
-            if (null !== $this->title && null !== $item->titleOrg) {
+            if (!empty($this->title) && !empty($item->titleOrg)) {
                 $oL          = new DamerauLevenshtein($this->title, $item->titleOrg);
                 $fTitleRatio = $oL->getRelativeDistance();
             }
-            if (null !== $this->director && null !== $item->directorDisplay) {
+            /** @noinspection IsEmptyFunctionUsageInspection */
+            if (!empty($this->director) && !empty($item->directorDisplay)) {
                 $oL             = new DamerauLevenshtein($this->director, $item->directorDisplay);
                 $fDirectorRatio = $oL->getRelativeDistance();
             }
-            if (null !== $this->year && null !== $item->year) {
+            /** @noinspection IsEmptyFunctionUsageInspection */
+            if (!empty($this->year) && !empty($item->year)) {
                 $oL         = new DamerauLevenshtein($this->year, $item->year);
                 $fYearRatio = $oL->getRelativeDistance();
             }
