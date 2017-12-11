@@ -24,7 +24,6 @@ namespace mrcnpdlk\Xmdb;
 use Campo\UserAgent;
 use Curl\Curl;
 use HttpLib\Http;
-use Imdb\Cache;
 use Imdb\Config;
 use Imdb\Title as ApiTitle;
 use Imdb\TitleSearch;
@@ -84,24 +83,6 @@ class Imdb
         } catch (\Exception $e) {
             throw new Exception(sprintf('Cannot create Tmdb Client'), 1, $e);
         }
-    }
-
-    /**
-     * @param string $imdbId
-     *
-     * @return \Imdb\Title
-     */
-    protected function getApiTitle(string $imdbId): ApiTitle
-    {
-        return new ApiTitle($imdbId, $this->oConfig, $this->oLog, $this->oCache);
-    }
-
-    /**
-     * @return \Imdb\TitleSearch
-     */
-    protected function getApiTitleSearch(): TitleSearch
-    {
-        return new ApiTitleSearch($this->oConfig, $this->oLog, $this->oCache);
     }
 
     /**
@@ -196,6 +177,16 @@ class Imdb
     /**
      * @param string $imdbId
      *
+     * @return \Imdb\Title
+     */
+    protected function getApiTitle(string $imdbId): ApiTitle
+    {
+        return new ApiTitle($imdbId, $this->oConfig, $this->oLog, $this->oCache);
+    }
+
+    /**
+     * @param string $imdbId
+     *
      * @return \mrcnpdlk\Xmdb\Model\Imdb\Rating
      * @throws \mrcnpdlk\Xmdb\Exception
      */
@@ -275,6 +266,7 @@ class Imdb
                 $tmpList[$item->imdbId] = $item;
             } else {
                 $tmpList[$item->imdbId]->isMovie = $tmpList[$item->imdbId]->isMovie ?? $item->isMovie;
+                $tmpList[$item->imdbId]->type    = $tmpList[$item->imdbId]->type ?? $item->type;
             }
         }
 
@@ -283,48 +275,6 @@ class Imdb
         }
 
         return $answer;
-    }
-
-    /**
-     * @param string $title
-     *
-     * @return Title[]
-     */
-    public function searchByTitleApi(string $title): array
-    {
-        try {
-            $answer = [];
-            $tList  = $this->getApiTitleSearch()->search($title, [
-                TitleSearch::MOVIE,
-                TitleSearch::TV_SERIES,
-                TitleSearch::VIDEO,
-                TitleSearch::TV_MOVIE,
-            ])
-            ;
-
-            foreach ($tList as $element) {
-                $oTitle                  = new Title();
-                $oTitle->imdbId          = 'tt' . $element->imdbid();
-                $oTitle->title           = $element->title();
-                $oTitle->rating          = null; //set null for speedy
-                $oTitle->episode         = null;
-                $oTitle->year            = empty($element->year()) ? null : $element->year();
-                $oTitle->type            = $element->movietype();
-                $oTitle->isMovie         = \in_array($element->movietype(), [TitleSearch::MOVIE, TitleSearch::TV_MOVIE, TitleSearch::VIDEO],
-                    true);
-                $oTitle->director        = [];
-                $oTitle->directorDisplay = implode(', ', $oTitle->director);
-                $oTitle->star            = [];
-                $oTitle->starDisplay     = implode(', ', $oTitle->star);
-                $answer[]                = $oTitle;
-            }
-
-            return $answer;
-        } catch (\Exception $e) {
-            $this->oLog->warning(sprintf('Item [%s] not found, reason: %s', $title, $e->getMessage()));
-
-            return [];
-        }
     }
 
     /**
@@ -448,5 +398,55 @@ class Imdb
 
             return [];
         }
+    }
+
+    /**
+     * @param string $title
+     *
+     * @return Title[]
+     */
+    public function searchByTitleApi(string $title): array
+    {
+        try {
+            $answer = [];
+            $tList  = $this->getApiTitleSearch()->search($title, [
+                TitleSearch::MOVIE,
+                TitleSearch::TV_SERIES,
+                TitleSearch::VIDEO,
+                TitleSearch::TV_MOVIE,
+            ])
+            ;
+
+            foreach ($tList as $element) {
+                $oTitle                  = new Title();
+                $oTitle->imdbId          = 'tt' . $element->imdbid();
+                $oTitle->title           = $element->title();
+                $oTitle->rating          = null; //set null for speedy
+                $oTitle->episode         = null;
+                $oTitle->year            = empty($element->year()) ? null : $element->year();
+                $oTitle->type            = $element->movietype();
+                $oTitle->isMovie         = \in_array($element->movietype(), [TitleSearch::MOVIE, TitleSearch::TV_MOVIE, TitleSearch::VIDEO],
+                    true);
+                $oTitle->director        = [];
+                $oTitle->directorDisplay = implode(', ', $oTitle->director);
+                $oTitle->star            = [];
+                $oTitle->starDisplay     = implode(', ', $oTitle->star);
+                $answer[]                = $oTitle;
+            }
+
+            return $answer;
+        } catch (\Exception $e) {
+            $this->oLog->warning(sprintf('Item [%s] not found, reason: %s', $title, $e->getMessage()));
+
+            return [];
+        }
+    }
+
+    /**
+     * @return \Imdb\TitleSearch
+     */
+    protected function getApiTitleSearch(): TitleSearch
+    {
+        return new ApiTitleSearch($this->oConfig, $this->oLog, $this->oCache);
     }
 }

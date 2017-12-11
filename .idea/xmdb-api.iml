@@ -82,7 +82,6 @@
           <root url="file://$MODULE_DIR$/vendor/kherge/file-manager" />
           <root url="file://$MODULE_DIR$/vendor/kherge/json" />
           <root url="file://$MODULE_DIR$/vendor/monolog/monolog" />
-          <root url="file://$MODULE_DIR$/vendor/mrcnpdlk/imdbphp" />
           <root url="file://$MODULE_DIR$/vendor/mrcnpdlk/monolog" />
           <root url="file://$MODULE_DIR$/vendor/mrcnpdlk/psr16cache-adapter" />
           <root url="file://$MODULE_DIR$/vendor/myclabs/deep-copy" />
@@ -143,7 +142,6 @@
           <root url="file://$MODULE_DIR$/vendor/kherge/file-manager" />
           <root url="file://$MODULE_DIR$/vendor/kherge/json" />
           <root url="file://$MODULE_DIR$/vendor/monolog/monolog" />
-          <root url="file://$MODULE_DIR$/vendor/mrcnpdlk/imdbphp" />
           <root url="file://$MODULE_DIR$/vendor/mrcnpdlk/monolog" />
           <root url="file://$MODULE_DIR$/vendor/mrcnpdlk/psr16cache-adapter" />
           <root url="file://$MODULE_DIR$/vendor/myclabs/deep-copy" />
