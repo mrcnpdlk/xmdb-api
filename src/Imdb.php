@@ -34,14 +34,12 @@ use mrcnpdlk\Xmdb\Model\Imdb\Image;
 use mrcnpdlk\Xmdb\Model\Imdb\Info;
 use mrcnpdlk\Xmdb\Model\Imdb\Person;
 use mrcnpdlk\Xmdb\Model\Imdb\Rating;
+use mrcnpdlk\Xmdb\Model\Imdb\Ratio;
 use mrcnpdlk\Xmdb\Model\Imdb\Title;
 use Sunra\PhpSimple\HtmlDomParser;
 
 class Imdb
 {
-
-    const ANONYMOUS_URL = 'http://anonymouse.org/cgi-bin/anon-www.cgi/';
-
     /**
      * @var \mrcnpdlk\Xmdb\Client
      */
@@ -243,13 +241,13 @@ class Imdb
     /**
      * Combined search by title
      *
-     * @param string   $title
-     *
-     * @param int|null $limit
+     * @param string                               $title
+     * @param int|null                             $limit
+     * @param \mrcnpdlk\Xmdb\Model\Imdb\Ratio|null $oRatio
      *
      * @return Title[]
      */
-    public function searchByTitle(string $title, int $limit = null): array
+    public function searchByTitle(string $title, int $limit = null, Ratio $oRatio = null): array
     {
         /**
          * @var Title[] $answer
@@ -274,6 +272,15 @@ class Imdb
 
         foreach ($tmpList as $item) {
             $answer[] = $item;
+        }
+
+        if ($oRatio) {
+            $oRatio->calculateRatio($answer);
+            $answer = [];
+            foreach ($oRatio->items as $oRatioElement) {
+                $answer[] = $oRatioElement->item;
+            }
+
         }
 
         return $limit === null ? $answer : \array_slice($answer, 0, $limit);
@@ -380,6 +387,7 @@ class Imdb
                 if ($imdbId) {
                     $oTitle                  = new Title();
                     $oTitle->title           = $foundTitle;
+                    $oTitle->titleOrg        = $foundTitle;
                     $oTitle->imdbId          = $imdbId;
                     $oTitle->rating          = $foundRating;
                     $oTitle->metascore       = $foundMetascore;
@@ -425,6 +433,7 @@ class Imdb
                 $oTitle                  = new Title();
                 $oTitle->imdbId          = 'tt' . $element->imdbid();
                 $oTitle->title           = $element->title();
+                $oTitle->titleOrg        = $element->title();
                 $oTitle->rating          = null; //set null for speedy
                 $oTitle->episode         = null;
                 $oTitle->year            = empty($element->year()) ? null : $element->year();

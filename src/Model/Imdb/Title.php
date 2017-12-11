@@ -32,6 +32,10 @@ class Title
      */
     public $title;
     /**
+     * @var string
+     */
+    public $titleOrg;
+    /**
      * @var boolean
      */
     public $isMovie;
