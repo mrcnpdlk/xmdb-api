@@ -288,11 +288,13 @@ class Imdb
             /**
              * @var Title[] $answer
              */
-            $answer = [];
-            $searchUrl
-                    = 'http://www.imdb.com/search/title' .
-                '?at=0&sort=num_votes&title_type=feature,tv_movie,tv_series,tv_episode,tv_special,mini_series,documentary,short,video&title='
-                . $title;
+            $answer    = [];
+            $params    = [
+                'sort'  => 'moviemeter,asc',
+                'view'  => 'advanced',
+                'title' => $title,
+            ];
+            $searchUrl = 'http://www.imdb.com/search/title?' . http_build_query($params);
 
             $htmlContent = $this->oClient->getAdapter()->useCache(
                 function () use ($searchUrl) {

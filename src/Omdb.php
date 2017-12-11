@@ -71,7 +71,7 @@ class Omdb
                         'plot' => 'full',
                         'r'    => 'json',
                     ];
-                    $oCurl->get($this->url . '&' . http_build_query($params));
+                    $oCurl->get($this->url . '?' . http_build_query($params));
 
                     if ($oCurl->error) {
                         throw new \RuntimeException('Curl Error! ' . ($oCurl->httpStatusCode ? Http::message($oCurl->httpStatusCode) : 'Unknown code'),
