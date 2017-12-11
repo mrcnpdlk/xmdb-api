@@ -243,11 +243,13 @@ class Imdb
     /**
      * Combined search by title
      *
-     * @param string $title
+     * @param string   $title
+     *
+     * @param int|null $limit
      *
      * @return Title[]
      */
-    public function searchByTitle(string $title): array
+    public function searchByTitle(string $title, int $limit = null): array
     {
         /**
          * @var Title[] $answer
@@ -274,7 +276,7 @@ class Imdb
             $answer[] = $item;
         }
 
-        return $answer;
+        return $limit === null ? $answer : \array_slice($answer, 0, $limit);
     }
 
     /**
