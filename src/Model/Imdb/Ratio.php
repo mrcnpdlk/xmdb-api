@@ -69,7 +69,7 @@ class Ratio
                 $oL         = new DamerauLevenshtein($this->year, $item->year);
                 $fYearRatio = $oL->getRelativeDistance();
             }
-            $score = round((($fTitleRatio + $fDirectorRatio + $fYearRatio) / 3) * 100, 3);
+            $score = round(($fTitleRatio * 0.5 + $fDirectorRatio * 0.3 + $fYearRatio * 0.2) * 100, 3);
 
             $this->items[] = new RatioElement($score, $item);
 
