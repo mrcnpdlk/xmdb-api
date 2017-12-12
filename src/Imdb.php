@@ -174,7 +174,7 @@ class Imdb
                 $oImage        = isset($ch->name->image) ? new Image($ch->name->image->url, $ch->name->image->width,
                     $ch->name->image->height) : null;
                 $oPerson       = $ch->name ? new Person($ch->name->nconst, $ch->name->name, $oImage) : null;
-                $oInfo->cast[] = new Character($ch->char, $oPerson);
+                $oInfo->cast[] = new Character($ch->char ?? null, $oPerson);
             }
 
 
