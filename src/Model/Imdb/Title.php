@@ -66,17 +66,17 @@ class Title
     /**
      * @var string[]
      */
-    public $director = [];
+    public $directors = [];
     /**
      * @var string
      */
-    public $directorDisplay;
+    public $directorsDisplay;
     /**
      * @var string[]
      */
-    public $star = [];
+    public $stars = [];
     /**
      * @var string
      */
-    public $starDisplay;
+    public $starsDisplay;
 }

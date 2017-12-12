@@ -60,8 +60,8 @@ class Ratio
                 $fTitleRatio = $oL->getRelativeDistance();
             }
             /** @noinspection IsEmptyFunctionUsageInspection */
-            if (!empty($this->director) && !empty($item->directorDisplay)) {
-                $oL             = new DamerauLevenshtein($this->director, $item->directorDisplay);
+            if (!empty($this->director) && !empty($item->directorsDisplay)) {
+                $oL             = new DamerauLevenshtein($this->director, $item->directorsDisplay);
                 $fDirectorRatio = $oL->getRelativeDistance();
             }
             /** @noinspection IsEmptyFunctionUsageInspection */

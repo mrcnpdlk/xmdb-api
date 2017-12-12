@@ -51,11 +51,11 @@ class Title
     /**
      * @var string[]
      */
-    public $director = [];
+    public $directors = [];
     /**
      * @var string[]
      */
-    public $writer = [];
+    public $writers = [];
     /**
      * @var string[]
      */
@@ -120,23 +120,23 @@ class Title
      */
     public static function create(\stdClass $oData)
     {
-        $oTitle               = new static();
-        $oTitle->title        = $oData->Title;
-        $oTitle->year         = $oData->Year;
-        $oTitle->released     = Carbon::parse($oData->Released)->format('Y-m-d');
-        $oTitle->runtime      = $oData->Runtime;
-        $oTitle->genre        = explode(', ', $oData->Genre);
-        $oTitle->director     = $oData->Director === 'N/A' ? null : explode(', ', $oData->Director);
-        $oTitle->writer       = explode(', ', $oData->Writer);
-        $oTitle->actors       = explode(', ', $oData->Actors);
-        $oTitle->plot         = $oData->Plot;
-        $oTitle->language     = $oData->Language;
-        $oTitle->country      = $oData->Country;
-        $oTitle->awards       = $oData->Awards;
-        $oTitle->poster       = $oData->Poster;
-        $oTitle->metascore    = $oData->Metascore === 'N/A' ? null : (int)$oData->Metascore;
-        $oTitle->imdbRating   = (float)$oData->imdbRating;
-        $oTitle->imdbVotes    = (int)preg_replace('/,/', '', $oData->imdbVotes);
+        $oTitle             = new static();
+        $oTitle->title      = $oData->Title;
+        $oTitle->year       = $oData->Year;
+        $oTitle->released   = Carbon::parse($oData->Released)->format('Y-m-d');
+        $oTitle->runtime    = $oData->Runtime;
+        $oTitle->genre      = explode(', ', $oData->Genre);
+        $oTitle->directors  = $oData->Director === 'N/A' ? null : explode(', ', $oData->Director);
+        $oTitle->writers    = explode(', ', $oData->Writer);
+        $oTitle->actors     = explode(', ', $oData->Actors);
+        $oTitle->plot       = $oData->Plot;
+        $oTitle->language   = $oData->Language;
+        $oTitle->country    = $oData->Country;
+        $oTitle->awards     = $oData->Awards;
+        $oTitle->poster     = $oData->Poster;
+        $oTitle->metascore  = $oData->Metascore === 'N/A' ? null : (int)$oData->Metascore;
+        $oTitle->imdbRating = (float)$oData->imdbRating;
+        $oTitle->imdbVotes  = (int)preg_replace('/,/', '', $oData->imdbVotes);
         $oTitle->imdbId       = $oData->imdbID;
         $oTitle->type         = $oData->Type;
         $oTitle->totalSeasons = !isset($oData->totalSeasons) || $oData->totalSeasons === 'N/A' ? null : (int)$oData->totalSeasons;

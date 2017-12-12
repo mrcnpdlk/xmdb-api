@@ -185,11 +185,11 @@ class Imdb
             $oInfo->countriesDisplay = implode(', ', $oInfo->countries);
 
             if ($oRatio) {
-                $oTitle                  = new Title();
-                $oTitle->title           = $oInfo->title;
-                $oTitle->titleOrg        = $oInfo->title;
-                $oTitle->directorDisplay = $oInfo->directorsDisplay;
-                $oTitle->year            = $oInfo->year;
+                $oTitle                   = new Title();
+                $oTitle->title            = $oInfo->title;
+                $oTitle->titleOrg         = $oInfo->title;
+                $oTitle->directorsDisplay = $oInfo->directorsDisplay;
+                $oTitle->year             = $oInfo->year;
                 $oRatio->calculateRatio([$oTitle]);
             }
 
@@ -332,10 +332,10 @@ class Imdb
                 $oTitle->type            = $element->movietype();
                 $oTitle->isMovie         = \in_array($element->movietype(), [TitleSearch::MOVIE, TitleSearch::TV_MOVIE, TitleSearch::VIDEO],
                     true);
-                $oTitle->director        = [];
-                $oTitle->directorDisplay = implode(', ', $oTitle->director);
-                $oTitle->star            = [];
-                $oTitle->starDisplay     = implode(', ', $oTitle->star);
+                $oTitle->directors        = [];
+                $oTitle->directorsDisplay = implode(', ', $oTitle->directors);
+                $oTitle->stars            = [];
+                $oTitle->starsDisplay     = implode(', ', $oTitle->stars);
                 $answer[]                = $oTitle;
             }
 
@@ -455,10 +455,10 @@ class Imdb
                     $oTitle->episode         = $foundEpisode;
                     $oTitle->year            = $foundYear;
                     $oTitle->type            = $foundType;
-                    $oTitle->director        = $directors;
-                    $oTitle->directorDisplay = implode(', ', $oTitle->director);
-                    $oTitle->star            = $stars;
-                    $oTitle->starDisplay     = implode(', ', $oTitle->star);
+                    $oTitle->directors        = $directors;
+                    $oTitle->directorsDisplay = implode(', ', $oTitle->directors);
+                    $oTitle->stars            = $stars;
+                    $oTitle->starsDisplay     = implode(', ', $oTitle->stars);
 
                     $answer[] = $oTitle;
                 }
