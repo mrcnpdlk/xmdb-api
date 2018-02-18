@@ -85,7 +85,7 @@ class Title extends \mrcnpdlk\Xmdb\Model\Title
         $oTitle->imdbId           = $oData->imdbID;
         $oTitle->type             = $oData->Type;
         $oTitle->totalSeasons     = !isset($oData->totalSeasons) || $oData->totalSeasons === 'N/A' ? null : (int)$oData->totalSeasons;
-        $oTitle->dvd              = isset($oData->DVD) ? Carbon::parse($oData->DVD)->format('Y-m-d') : null;
+        $oTitle->dvd              = isset($oData->DVD) && $oData->DVD !== 'N/A' ? Carbon::parse($oData->DVD)->format('Y-m-d') : null;
         $oTitle->boxOffice        = !isset($oData->BoxOffice) || $oData->BoxOffice === 'N/A' ? null : $oData->BoxOffice;
         $oTitle->production       = !isset($oData->Production) || $oData->Production === 'N/A' ? null : $oData->Production;
         $oTitle->website          = !isset($oData->Website) || $oData->Website === 'N/A' ? null : $oData->Website;
