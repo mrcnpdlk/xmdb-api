@@ -5,7 +5,7 @@
  * Time: 13:22
  */
 
-namespace mrcnpdlk\Xmdb\Model\Imdb;
+namespace mrcnpdlk\Xmdb\Model;
 
 
 class RatioElement
@@ -15,15 +15,15 @@ class RatioElement
      */
     public $score;
     /**
-     * @var \mrcnpdlk\Xmdb\Model\Imdb\Title
+     * @var \mrcnpdlk\Xmdb\Model\Title
      */
     public $item;
 
     /**
      * RatioElement constructor.
      *
-     * @param float                           $score
-     * @param \mrcnpdlk\Xmdb\Model\Imdb\Title $oTitle
+     * @param float                      $score
+     * @param \mrcnpdlk\Xmdb\Model\Title $oTitle
      */
     public function __construct(float $score, Title $oTitle)
     {

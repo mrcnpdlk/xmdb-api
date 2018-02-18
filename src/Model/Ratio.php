@@ -5,8 +5,7 @@
  * Time: 12:42
  */
 
-namespace mrcnpdlk\Xmdb\Model\Imdb;
-
+namespace mrcnpdlk\Xmdb\Model;
 
 use Oefenweb\DamerauLevenshtein\DamerauLevenshtein;
 
@@ -19,13 +18,13 @@ class Ratio
     /**
      * @var string|null
      */
-    public $director;
+    public $directorsDisplay;
     /**
      * @var string|null
      */
-    public $year;
+    public $releaseYear;
     /**
-     * @var \mrcnpdlk\Xmdb\Model\Imdb\RatioElement[]
+     * @var \mrcnpdlk\Xmdb\Model\RatioElement[]
      */
     public $items = [];
 
@@ -33,14 +32,14 @@ class Ratio
      * Ratio constructor.
      *
      * @param string      $title
-     * @param string|null $director
-     * @param string|null $year
+     * @param string|null $directorsDisplay
+     * @param string|null $releaseYear
      */
-    public function __construct(string $title, string $director = null, string $year = null)
+    public function __construct(string $title, string $directorsDisplay = null, string $releaseYear = null)
     {
-        $this->title    = $title;
-        $this->director = $director;
-        $this->year     = $year;
+        $this->title            = $title;
+        $this->directorsDisplay = $directorsDisplay;
+        $this->releaseYear      = $releaseYear;
     }
 
     /**
@@ -61,12 +60,12 @@ class Ratio
             }
             /** @noinspection IsEmptyFunctionUsageInspection */
             if (!empty($this->director) && !empty($item->directorsDisplay)) {
-                $oL             = new DamerauLevenshtein($this->director, $item->directorsDisplay);
+                $oL             = new DamerauLevenshtein($this->directorsDisplay, $item->directorsDisplay);
                 $fDirectorRatio = $oL->getRelativeDistance();
             }
             /** @noinspection IsEmptyFunctionUsageInspection */
-            if (!empty($this->year) && !empty($item->year)) {
-                $oL         = new DamerauLevenshtein($this->year, $item->year);
+            if (!empty($this->releaseYear) && !empty($item->releaseYear)) {
+                $oL         = new DamerauLevenshtein($this->releaseYear, $item->releaseYear);
                 $fYearRatio = $oL->getRelativeDistance();
             }
             $score = round(($fTitleRatio * 0.5 + $fDirectorRatio * 0.3 + $fYearRatio * 0.2) * 100, 3);

@@ -12,6 +12,7 @@ use Campo\UserAgent;
 use Curl\Curl;
 use HttpLib\Http;
 use mrcnpdlk\Xmdb\Model\Omdb\Title;
+use mrcnpdlk\Xmdb\Model\Ratio;
 
 class Omdb
 {
@@ -53,12 +54,14 @@ class Omdb
     }
 
     /**
-     * @param string $imdbId
+     * @param string                          $imdbId
+     *
+     * @param \mrcnpdlk\Xmdb\Model\Ratio|null $oRatio
      *
      * @return Title
      * @throws \mrcnpdlk\Xmdb\Exception
      */
-    public function getByImdbId(string $imdbId)
+    public function getByImdbId(string $imdbId, Ratio $oRatio = null)
     {
         try {
             $oResp = $this->oClient->getAdapter()->useCache(
@@ -71,7 +74,7 @@ class Omdb
                         'plot' => 'full',
                         'r'    => 'json',
                     ];
-                    $oCurl->get($this->url . '?' . http_build_query($params));
+                    $oCurl->get($this->url . '&' . http_build_query($params));
 
                     if ($oCurl->error) {
                         throw new \RuntimeException('Curl Error! ' . ($oCurl->httpStatusCode ? Http::message($oCurl->httpStatusCode) : 'Unknown code'),
@@ -87,8 +90,13 @@ class Omdb
                 3600 * 2)
             ;
 
+            $oTitle = Title::create($oResp);
 
-            return Title::create($oResp);
+            if ($oRatio) {
+                $oRatio->calculateRatio([$oTitle]);
+            }
+
+            return $oTitle;
 
         } catch (\Exception $e) {
             throw new Exception($e->getMessage(), 1, $e);
@@ -137,4 +145,5 @@ class Omdb
             throw new Exception($e->getMessage(), 1, $e);
         }
     }
+
 }

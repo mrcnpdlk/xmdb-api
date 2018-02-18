@@ -29,13 +29,9 @@ use Imdb\Title as ApiTitle;
 use Imdb\TitleSearch;
 use Imdb\TitleSearch as ApiTitleSearch;
 use KHerGe\JSON\JSON;
-use mrcnpdlk\Xmdb\Model\Imdb\Character;
-use mrcnpdlk\Xmdb\Model\Imdb\Image;
-use mrcnpdlk\Xmdb\Model\Imdb\Info;
-use mrcnpdlk\Xmdb\Model\Imdb\Person;
 use mrcnpdlk\Xmdb\Model\Imdb\Rating;
-use mrcnpdlk\Xmdb\Model\Imdb\Ratio;
 use mrcnpdlk\Xmdb\Model\Imdb\Title;
+use mrcnpdlk\Xmdb\Model\Ratio;
 use Sunra\PhpSimple\HtmlDomParser;
 
 class Imdb
@@ -58,6 +54,10 @@ class Imdb
      * @var \Psr\SimpleCache\CacheInterface
      */
     private $oCache;
+    /**
+     * @var \mrcnpdlk\Xmdb\ImdbCache
+     */
+    private $oImdbCache;
 
     /**
      * Imdb constructor.
@@ -72,8 +72,9 @@ class Imdb
             $this->oClient                = $oClient;
             $this->oLog                   = $oClient->getLogger();
             $this->oCache                 = $oClient->getAdapter()->getCache();
+            $this->oImdbCache             = new ImdbCache($this->oCache);
             $this->oConfig                = new Config();
-            $this->oConfig->usecache      = null !== $this->oCache;
+            $this->oConfig->usecache      = null !== $this->oImdbCache;
             $this->oConfig->language      = $oClient->getLang();
             $this->oConfig->default_agent = UserAgent::random();
 
@@ -90,7 +91,7 @@ class Imdb
      */
     protected function getApiTitle(string $imdbId): ApiTitle
     {
-        return new ApiTitle($imdbId, $this->oConfig, $this->oLog, $this->oCache);
+        return new ApiTitle($imdbId, $this->oConfig, $this->oLog, $this->oImdbCache);
     }
 
     /**
@@ -98,112 +99,13 @@ class Imdb
      */
     protected function getApiTitleSearch(): TitleSearch
     {
-        return new ApiTitleSearch($this->oConfig, $this->oLog, $this->oCache);
-    }
-
-    /**
-     * @param string                               $imdbId
-     * @param \mrcnpdlk\Xmdb\Model\Imdb\Ratio|null $oRatio
-     *
-     * @return \mrcnpdlk\Xmdb\Model\Imdb\Info
-     * @throws \mrcnpdlk\Xmdb\Exception
-     */
-    public function getInfo(string $imdbId, Ratio $oRatio = null): Info
-    {
-        try {
-            $searchUrl = 'http://app.imdb.com/title/maindetails?tconst=' . $imdbId;
-
-            $oResp = $this->oClient->getAdapter()->useCache(
-                function () use ($searchUrl) {
-                    $oCurl = new Curl();
-                    $oCurl->setUserAgent(UserAgent::random());
-                    $oCurl->setHeader('Accept-Language', $this->oClient->getLang());
-                    $oCurl->get($searchUrl);
-
-                    if ($oCurl->error) {
-                        throw new \RuntimeException('Curl Error! ' . Http::message($oCurl->httpStatusCode), $oCurl->error_code);
-                    }
-
-                    return $oCurl->response->data ?? null;
-                },
-                [$searchUrl, $this->oClient->getLang()],
-                3600 * 2)
-            ;
-            $oData = $oResp->data ?? $oResp;
-
-            $oApiTitle = $this->getApiTitle($imdbId);
-
-            $oInfo              = new Info();
-            $oInfo->id          = $oData->tconst;
-            $oInfo->title       = $oData->title;
-            $oInfo->year        = $oData->year;
-            $oInfo->image       = isset($oData->image) ? new Image($oData->image->url, $oData->image->width, $oData->image->height) : null;
-            $oInfo->releaseDate = $oData->release_date->normal ?? null;
-            $oInfo->genres      = $oData->genres ?? [];
-            $oInfo->rating      = $oData->rating ?? null;
-            $oInfo->votes       = $oData->num_votes ?? null;
-
-            $sRuntime       = $oApiTitle->runtime();
-            $oInfo->runtime = null === $sRuntime ? null : (int)$sRuntime;
-
-            $tmp = [];
-            foreach ($oData->directors_summary ?? [] as $oDir) {
-                $oPerson            = $oDir->name;
-                $oImage             = isset($oPerson->image) ? new Image($oPerson->image->url, $oPerson->image->width,
-                    $oPerson->image->height) : null;
-                $oInfo->directors[] = new Person($oPerson->nconst, $oPerson->name, $oImage);
-                $tmp[]              = $oPerson->name;
-            }
-            $oInfo->directorsDisplay = implode(', ', $tmp);
-
-            $tmp = [];
-            foreach ($oData->writers_summary ?? [] as $oDir) {
-                $oPerson          = $oDir->name;
-                $oImage           = isset($oPerson->image) ? new Image($oPerson->image->url, $oPerson->image->width,
-                    $oPerson->image->height) : null;
-                $oInfo->writers[] = new Person($oPerson->nconst, $oPerson->name, $oImage);
-                $tmp[]            = $oPerson->name;
-            }
-            $oInfo->writersDisplay = implode(', ', $tmp);
-
-            foreach ($oData->photos ?? [] as $photo) {
-                $oInfo->photos[] = new Image($photo->image->url, $photo->image->width, $photo->image->height);
-            }
-
-            foreach ($oData->cast_summary ?? [] as $ch) {
-                $oImage        = isset($ch->name->image) ? new Image($ch->name->image->url, $ch->name->image->width,
-                    $ch->name->image->height) : null;
-                $oPerson       = $ch->name ? new Person($ch->name->nconst, $ch->name->name, $oImage) : null;
-                $oInfo->cast[] = new Character($ch->char ?? null, $oPerson);
-            }
-
-
-            $oInfo->countries = $oApiTitle->country();
-
-
-            $oInfo->genresDisplay    = implode(', ', $oInfo->genres);
-            $oInfo->countriesDisplay = implode(', ', $oInfo->countries);
-
-            if ($oRatio) {
-                $oTitle                   = new Title();
-                $oTitle->title            = $oInfo->title;
-                $oTitle->titleOrg         = $oInfo->title;
-                $oTitle->directorsDisplay = $oInfo->directorsDisplay;
-                $oTitle->year             = $oInfo->year;
-                $oRatio->calculateRatio([$oTitle]);
-            }
-
-            return $oInfo;
-
-        } catch (\Exception $e) {
-            throw new Exception(sprintf('Item [%s] not found, reason: %s', $imdbId, $e->getMessage()));
-        }
+        return new ApiTitleSearch($this->oConfig, $this->oLog, $this->oImdbCache);
     }
 
     /**
      * @param string $imdbId
      *
-     * @return \mrcnpdlk\Xmdb\Model\Imdb\Rating
+     * @return \mrcnpdlk\Xmdb\Rating
      * @throws \mrcnpdlk\Xmdb\Exception
      */
     public function getRating(string $imdbId): Rating
@@ -259,9 +161,9 @@ class Imdb
     /**
      * Combined search by title
      *
-     * @param string                               $title
-     * @param int|null                             $limit
-     * @param \mrcnpdlk\Xmdb\Model\Imdb\Ratio|null $oRatio
+     * @param string                          $title
+     * @param int|null                        $limit
+     * @param \mrcnpdlk\Xmdb\Model\Ratio|null $oRatio
      *
      * @return Title[]
      */
@@ -322,21 +224,22 @@ class Imdb
             ;
 
             foreach ($tList as $element) {
-                $oTitle                  = new Title();
-                $oTitle->imdbId          = 'tt' . $element->imdbid();
-                $oTitle->title           = $element->title();
-                $oTitle->titleOrg        = $element->title();
-                $oTitle->rating          = null; //set null for speedy
-                $oTitle->episode         = null;
-                $oTitle->year            = empty($element->year()) ? null : $element->year();
-                $oTitle->type            = $element->movietype();
-                $oTitle->isMovie         = \in_array($element->movietype(), [TitleSearch::MOVIE, TitleSearch::TV_MOVIE, TitleSearch::VIDEO],
+                $oTitle                   = new Title();
+                $oTitle->imdbId           = 'tt' . $element->imdbid();
+                $oTitle->title            = $element->title();
+                $oTitle->titleOrg         = $element->title();
+                $oTitle->rating           = null; //set null for speedy
+                $oTitle->episode          = null;
+                $oTitle->releaseYear      = empty($element->year()) ? null : $element->year();
+                $oTitle->type             = $element->movietype();
+                $oTitle->isMovie          = \in_array($element->movietype(),
+                    [TitleSearch::MOVIE, TitleSearch::TV_MOVIE, TitleSearch::VIDEO],
                     true);
                 $oTitle->directors        = [];
                 $oTitle->directorsDisplay = implode(', ', $oTitle->directors);
-                $oTitle->stars            = [];
-                $oTitle->starsDisplay     = implode(', ', $oTitle->stars);
-                $answer[]                = $oTitle;
+                $oTitle->actors           = [];
+                $oTitle->actorsDisplay    = implode(', ', $oTitle->actors);
+                $answer[]                 = $oTitle;
             }
 
             return $answer;
@@ -446,19 +349,19 @@ class Imdb
                 }
 
                 if ($imdbId) {
-                    $oTitle                  = new Title();
-                    $oTitle->title           = $foundTitle;
-                    $oTitle->titleOrg        = $foundTitle;
-                    $oTitle->imdbId          = $imdbId;
-                    $oTitle->rating          = $foundRating;
-                    $oTitle->metascore       = $foundMetascore;
-                    $oTitle->episode         = $foundEpisode;
-                    $oTitle->year            = $foundYear;
-                    $oTitle->type            = $foundType;
+                    $oTitle                   = new Title();
+                    $oTitle->title            = $foundTitle;
+                    $oTitle->titleOrg         = $foundTitle;
+                    $oTitle->imdbId           = $imdbId;
+                    $oTitle->rating           = $foundRating;
+                    $oTitle->metascore        = $foundMetascore;
+                    $oTitle->episode          = $foundEpisode;
+                    $oTitle->releaseYear      = $foundYear;
+                    $oTitle->type             = $foundType;
                     $oTitle->directors        = $directors;
                     $oTitle->directorsDisplay = implode(', ', $oTitle->directors);
-                    $oTitle->stars            = $stars;
-                    $oTitle->starsDisplay     = implode(', ', $oTitle->stars);
+                    $oTitle->actors           = $stars;
+                    $oTitle->actorsDisplay    = implode(', ', $oTitle->actors);
 
                     $answer[] = $oTitle;
                 }

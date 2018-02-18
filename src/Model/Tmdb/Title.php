@@ -9,7 +9,7 @@
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
  *
- * @author Marcin Pudełek <marcin@pudelek.org.pl>
+ * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
 /**
@@ -21,7 +21,7 @@
 namespace mrcnpdlk\Xmdb\Model\Tmdb;
 
 
-class Title
+class Title extends \mrcnpdlk\Xmdb\Model\Title
 {
     /**
      * @var integer
@@ -34,23 +34,11 @@ class Title
     /**
      * @var string
      */
-    public $title;
-    /**
-     * @var string
-     */
-    public $titleOrg;
-    /**
-     * @var string
-     */
     public $titleOrgLang;
     /**
      * @var boolean
      */
     public $isAdult;
-    /**
-     * @var string
-     */
-    public $imdbId;
     /**
      * @var string|null
      */
@@ -59,14 +47,6 @@ class Title
      * @var string|null
      */
     public $poster;
-    /**
-     * @var string|null
-     */
-    public $releaseDate;
-    /**
-     * @var string
-     */
-    public $releaseYear;
     /**
      * @var float
      */
