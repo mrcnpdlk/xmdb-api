@@ -68,7 +68,7 @@ class Title extends \mrcnpdlk\Xmdb\Model\Title
         $oTitle->title            = $oData->Title;
         $oTitle->titleOrg         = $oData->Title;
         $oTitle->releaseYear      = $oData->Year;
-        $oTitle->releaseDate      = Carbon::parse($oData->Released)->format('Y-m-d');
+        $oTitle->releaseDate      = $oData->Released !== 'N/A' ? Carbon::parse($oData->Released)->format('Y-m-d') : null;
         $oTitle->runtime          = (int)$oData->Runtime;
         $oTitle->genres           = explode(', ', $oData->Genre);
         $oTitle->directors        = $oData->Director === 'N/A' ? [] : explode(', ', $oData->Director);
