@@ -54,10 +54,6 @@ class Imdb
      * @var \Psr\SimpleCache\CacheInterface
      */
     private $oCache;
-    /**
-     * @var \mrcnpdlk\Xmdb\ImdbCache
-     */
-    private $oImdbCache;
 
     /**
      * Imdb constructor.
@@ -72,15 +68,14 @@ class Imdb
             $this->oClient                = $oClient;
             $this->oLog                   = $oClient->getLogger();
             $this->oCache                 = $oClient->getAdapter()->getCache();
-            $this->oImdbCache             = new ImdbCache($this->oCache);
             $this->oConfig                = new Config();
-            $this->oConfig->usecache      = null !== $this->oImdbCache;
+            $this->oConfig->usecache      = null !== $this->oCache;
             $this->oConfig->language      = $oClient->getLang();
             $this->oConfig->default_agent = UserAgent::random();
 
 
         } catch (\Exception $e) {
-            throw new Exception(sprintf('Cannot create Tmdb Client'), 1, $e);
+            throw new Exception(sprintf('Cannot create Imdb Client'), 1, $e);
         }
     }
 
@@ -91,7 +86,7 @@ class Imdb
      */
     protected function getApiTitle(string $imdbId): ApiTitle
     {
-        return new ApiTitle($imdbId, $this->oConfig, $this->oLog, $this->oImdbCache);
+        return new ApiTitle($imdbId, $this->oConfig, $this->oLog, $this->oCache);
     }
 
     /**
@@ -99,7 +94,7 @@ class Imdb
      */
     protected function getApiTitleSearch(): TitleSearch
     {
-        return new ApiTitleSearch($this->oConfig, $this->oLog, $this->oImdbCache);
+        return new ApiTitleSearch($this->oConfig, $this->oLog, $this->oCache);
     }
 
     /**
@@ -116,25 +111,28 @@ class Imdb
                 . '/ratings%3Fjsonp=imdb.rating.run:imdb.api.title.ratings/data.json?u='
                 . $this->oClient->getImdbUser();
 
-            $oResp = $this->oClient->getAdapter()->useCache(
-                function () use ($searchUrl) {
-                    $oCurl = new Curl();
-                    $oCurl->setOpt(\CURLOPT_ENCODING, 'gzip');
-                    $oCurl->setUserAgent(UserAgent::random());
-                    $oCurl->setHeader('Accept-Language', $this->oClient->getLang());
-                    $oCurl->get($searchUrl);
+            $oResp = $this
+                ->oClient
+                ->getAdapter()
+                ->useCache(
+                    function () use ($searchUrl) {
+                        $oCurl = new Curl();
+                        $oCurl->setOpt(\CURLOPT_ENCODING, 'gzip');
+                        $oCurl->setUserAgent(UserAgent::random());
+                        $oCurl->setHeader('Accept-Language', $this->oClient->getLang());
+                        $oCurl->get($searchUrl);
 
-                    if ($oCurl->error) {
-                        throw new \RuntimeException('Curl Error! ' . Http::message($oCurl->httpStatusCode), $oCurl->error_code);
-                    }
+                        if ($oCurl->error) {
+                            throw new \RuntimeException('Curl Error! ' . Http::message($oCurl->httpStatusCode), $oCurl->error_code);
+                        }
 
-                    preg_match("/^[\w\.]*\((.*)\)$/", $oCurl->response, $output_array);
-                    $json = new JSON();
+                        preg_match("/^[\w\.]*\((.*)\)$/", $oCurl->response, $output_array);
+                        $json = new JSON();
 
-                    return $json->decode($output_array[1]);
-                },
-                [$searchUrl, $this->oClient->getLang()],
-                180)
+                        return $json->decode($output_array[1]);
+                    },
+                    [$searchUrl, $this->oClient->getLang()],
+                    180)
             ;
 
             if (!isset($oResp->resource)) {
