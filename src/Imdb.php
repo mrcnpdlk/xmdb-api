@@ -100,7 +100,7 @@ class Imdb
     /**
      * @param string $imdbId
      *
-     * @return \mrcnpdlk\Xmdb\Rating
+     * @return \mrcnpdlk\Xmdb\Model\Imdb\Rating
      * @throws \mrcnpdlk\Xmdb\Exception
      */
     public function getRating(string $imdbId): Rating

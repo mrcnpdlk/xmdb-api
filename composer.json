@@ -37,7 +37,7 @@
     "kherge/json": "~2",
     "httplib/http": "~1",
     "campo/random-user-agent": "~1",
-    "imdbphp/imdbphp": "~5.2.5",
+    "imdbphp/imdbphp": "~6.0.0",
     "nesbot/carbon": "~1",
     "oefenweb/damerau-levenshtein": "~2"
   },
